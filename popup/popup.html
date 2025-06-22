@@ -10,8 +10,37 @@
 
 <body>
   <div class="container">
-    <h1>Hello Web Vibes</h1>
+    <header class="header">
+      <h1>Web Vibes</h1>
+      <div class="current-site" id="currentSite">Loading...</div>
+    </header>
+
+    <div class="add-hack-section">
+      <button class="btn btn-primary" id="addHackBtn">
+        <span class="btn-icon">+</span>
+        Add New Hack
+      </button>
+    </div>
+
+    <div class="hacks-container">
+      <div class="hacks-header">
+        <h3>Active Hacks for this site</h3>
+      </div>
+      <div class="hacks-list" id="hacksList">
+        <!-- Hacks will be dynamically inserted here -->
+      </div>
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🎨</div>
+        <p>No hacks for this site yet</p>
+        <small>Click "Add New Hack" to get started!</small>
+      </div>
+    </div>
   </div>
+
+  <!-- Load library files in dependency order -->
+  <script src="../lib/hack/model/hack.js"></script>
+  <script src="../lib/hack/repo/hack-repo.js"></script>
+  <script src="../lib/hack/service/hack-service.js"></script>
   <script src="popup.js"></script>
 </body>
 

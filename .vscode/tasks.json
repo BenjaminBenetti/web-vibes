@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Open Test Page",
+			"type": "shell",
+			"command": "\"$BROWSER\" file:///workspaces/web-vibes/test.html",
+			"group": "test",
+			"isBackground": false
+		}
+	]
+}

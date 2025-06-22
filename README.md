@@ -17,17 +17,33 @@ Wild, and crazy, and fun!
 
 ```
 web-vibes/
-├── manifest.json          # Chrome extension manifest (v3)
-├── popup/                 # Extension popup UI
-│   ├── popup.html        # Popup HTML structure
-│   ├── popup.css         # Popup styling
-│   └── popup.js          # Popup functionality
-├── content/              # Content script (runs on web pages)
-│   └── content.js        # Content script logic
-├── icons/                # Extension icons
-│   └── README.md         # Icon requirements
-└── README.md             # This file
+├── manifest.json              # Chrome extension manifest
+├── popup/                     # Extension popup interface
+│   ├── popup.html
+│   ├── popup.css
+│   └── popup.js              # UI and event handling only
+├── content/                   # Content scripts
+│   └── content.js
+├── lib/                      # Core business logic (NEW!)
+│   ├── index.js              # Library factory functions
+│   ├── README.md             # Library documentation
+│   └── hack/                 # Hack-related modules
+│       ├── model/
+│       │   └── hack.js       # Data model
+│       ├── repo/
+│       │   └── hack-repo.js  # Storage repository
+│       └── service/
+│           └── hack-service.js # Business logic
+├── icons/                    # Extension icons
+└── test.html                # Test page for development
 ```
+
+## Architecture
+
+The codebase follows **SOLID principles** with clear separation of concerns:
+
+- **Model Layer**: Business logic layer (`lib/`)
+- **UI Layer**: User interface and interactions (`popup/`)
 
 ## Development Setup
 
@@ -36,11 +52,3 @@ web-vibes/
 3. Click "Load unpacked" and select this project directory
 4. The extension will be loaded and ready for development
 
-## Current Status
-
-This is a scaffolded project with basic structure in place:
-- ✅ Chrome extension manifest (v3)
-- ✅ Basic popup with "Hello Web Vibes" message
-- ✅ Content script template (ready for future MCP-style server integration)
-- ⏳ Icons (placeholders - need actual PNG files)
-- ⏳ Core functionality (to be implemented)

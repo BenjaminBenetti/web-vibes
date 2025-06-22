@@ -26,14 +26,13 @@
 /* Settings content */
 .settings-content {
   padding: 0 16px 16px;
+  overflow: visible; /* Ensure popovers can extend beyond container */
 }
 
 .settings-section {
   margin-bottom: 24px;
   padding: 16px;
-  background: var(--background-secondary);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+  overflow: visible; /* Ensure popovers can extend beyond section */
 }
 
 .settings-section h2 {
@@ -104,8 +103,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--background-secondary);
-  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 8px;
   cursor: pointer;

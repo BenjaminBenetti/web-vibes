@@ -43,14 +43,81 @@
 /* CSS Custom Properties for Dynamic Theming */
 :root {
   --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Default cosmic purple */
+  
+  /* Background colors */
+  --background-main: #f8fafc;
+  --background-secondary: #ffffff;
+  --background-hover: #f1f5f9;
+  
+  /* Text colors */
+  --text-color: #1e293b;
+  --text-secondary: #64748b;
+  
+  /* Border colors */
+  --border-color: #e2e8f0;
 }
 
 /* Theme classes for dynamic switching */
-.theme-cosmic-purple { --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.theme-ocean-breeze { --theme-gradient: linear-gradient(135deg, #667db6 0%, #0082c8 25%, #0052d4 50%, #667db6 100%); }
-.theme-sunset-glow { --theme-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.theme-aurora-green { --theme-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 25%, #d299c2 50%, #fef9d7 100%); }
-.theme-midnight-blue { --theme-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); }
-.theme-tropical-sunset { --theme-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%); }
-.theme-royal-purple { --theme-gradient: linear-gradient(135deg, #8360c3 0%, #2ebf91 100%); }
-.theme-fire-blaze { --theme-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.theme-cosmic-purple { 
+  --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background-main: #f0f2ff;
+  --background-secondary: #ffffff;
+  --background-hover: #e6eaff;
+  --border-color: #d0d7ff;
+}
+
+.theme-ocean-breeze { 
+  --theme-gradient: linear-gradient(135deg, #667db6 0%, #0082c8 25%, #0052d4 50%, #667db6 100%);
+  --background-main: #f0f8ff;
+  --background-secondary: #ffffff;
+  --background-hover: #e6f3ff;
+  --border-color: #cce7ff;
+}
+
+.theme-sunset-glow { 
+  --theme-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --background-main: #fff5f8;
+  --background-secondary: #ffffff;
+  --background-hover: #ffebf0;
+  --border-color: #ffd6e2;
+}
+
+.theme-aurora-green { 
+  --theme-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 25%, #d299c2 50%, #fef9d7 100%);
+  --background-main: #f0fffe;
+  --background-secondary: #ffffff;
+  --background-hover: #e6fffe;
+  --border-color: #ccfffe;
+}
+
+.theme-midnight-blue { 
+  --theme-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  --background-main: #f0f6ff;
+  --background-secondary: #ffffff;
+  --background-hover: #e6f2ff;
+  --border-color: #cce6ff;
+}
+
+.theme-tropical-sunset { 
+  --theme-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+  --background-main: #fff8f9;
+  --background-secondary: #ffffff;
+  --background-hover: #ffeff1;
+  --border-color: #ffdde2;
+}
+
+.theme-royal-purple { 
+  --theme-gradient: linear-gradient(135deg, #8360c3 0%, #2ebf91 100%);
+  --background-main: #f5f0ff;
+  --background-secondary: #ffffff;
+  --background-hover: #ebe0ff;
+  --border-color: #d6c7ff;
+}
+
+.theme-fire-blaze { 
+  --theme-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --background-main: #fff0ff;
+  --background-secondary: #ffffff;
+  --background-hover: #ffe6ff;
+  --border-color: #ffccff;
+}

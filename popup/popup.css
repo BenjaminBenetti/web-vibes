@@ -55,8 +55,8 @@ body {
     transform: rotate(90deg);
 }
 
-.settings-icon {
-    font-size: 16px;
+.settings-btn .material-icons {
+    font-size: 18px;
 }
 
 .current-site {

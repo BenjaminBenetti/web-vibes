@@ -19,8 +19,8 @@
   background-color: var(--background-hover);
 }
 
-.back-icon {
-  display: block;
+.back-btn .material-icons {
+  font-size: 20px;
 }
 
 /* Settings content */

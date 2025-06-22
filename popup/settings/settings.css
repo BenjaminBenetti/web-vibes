@@ -1,0 +1,69 @@
+/* Settings page specific styles */
+
+/* Back button */
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+  background-color: var(--background-hover);
+}
+
+.back-icon {
+  display: block;
+}
+
+/* Settings content */
+.settings-content {
+  padding: 0 16px 16px;
+}
+
+.settings-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.settings-section h2 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.settings-placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* Settings actions */
+.settings-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 320px) {
+  .settings-actions {
+    flex-direction: column;
+  }
+}

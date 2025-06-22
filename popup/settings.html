@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Vibes Settings</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-top">
+        <button class="back-btn" id="backBtn" title="Back">
+          <span class="back-icon">←</span>
+        </button>
+        <h1>Settings</h1>
+      </div>
+    </header>
+
+    <main class="settings-content">
+      <div class="settings-section">
+        <h2>General Settings</h2>
+        <p class="settings-placeholder">Settings options will be added here.</p>
+      </div>
+
+      <div class="settings-section">
+        <h2>Editor Preferences</h2>
+        <p class="settings-placeholder">Editor settings will be added here.</p>
+      </div>
+
+      <div class="settings-section">
+        <h2>Advanced</h2>
+        <p class="settings-placeholder">Advanced options will be added here.</p>
+      </div>
+
+      <div class="settings-actions">
+        <button class="btn btn-secondary" id="resetSettingsBtn">
+          Reset to Defaults
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Load services and dependencies -->
+  <script src="../lib/settings/settings-service.js"></script>
+  <script src="settings.js"></script>
+</body>
+
+</html>

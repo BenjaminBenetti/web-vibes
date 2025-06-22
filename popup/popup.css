@@ -18,14 +18,45 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 20px;
     color: white;
-    text-align: center;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 .header h1 {
-    margin: 0 0 8px 0;
+    margin: 0;
     font-size: 24px;
     font-weight: 600;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    flex: 1;
+}
+
+.settings-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.settings-icon {
+    font-size: 16px;
 }
 
 .current-site {

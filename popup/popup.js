@@ -117,6 +117,11 @@ class PopupUI {
       "Hack creation UI coming soon!\n\nThis will allow you to:\n• Write custom CSS\n• Add JavaScript\n• Preview changes\n• Save your hack"
     );
   }
+
+  handleSettingsNavigation() {
+    // Navigate to settings page
+    window.location.href = "settings/settings.html";
+  }
 }
 
 /**
@@ -133,6 +138,14 @@ class PopupEventHandler {
     this.ui.addHackBtn.addEventListener("click", () => {
       this.ui.handleAddHack();
     });
+
+    // Settings button
+    const settingsBtn = document.getElementById("settingsBtn");
+    if (settingsBtn) {
+      settingsBtn.addEventListener("click", () => {
+        this.ui.handleSettingsNavigation();
+      });
+    }
 
     // Hack actions (toggle/delete)
     this.ui.hacksListEl.addEventListener("click", (e) => {

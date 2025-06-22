@@ -13,6 +13,10 @@ class SettingsUI {
     this.backBtn = document.getElementById("backBtn");
     this.resetSettingsBtn = document.getElementById("resetSettingsBtn");
     this.themeSelector = document.getElementById("themeSelector");
+    this.themeCurrent = document.getElementById("themeCurrent");
+    this.themeCurrentPreview = document.getElementById("themeCurrentPreview");
+    this.themeExpandBtn = document.getElementById("themeExpandBtn");
+    this.themeSelectorWrapper = this.themeSelector.parentElement;
   }
 
   async render() {
@@ -23,8 +27,25 @@ class SettingsUI {
     // Render theme selector
     await this.renderThemeSelector();
 
+    // Render current theme preview
+    await this.renderCurrentTheme();
+
     // Apply current theme
     await this.applyCurrentTheme();
+  }
+
+  async renderCurrentTheme() {
+    const themes = this.settingsService.getAvailableThemes();
+    const currentSettings = await this.settingsService.getAllSettings();
+    const selectedTheme = currentSettings.selectedTheme;
+    const currentThemeData = themes[selectedTheme];
+
+    if (currentThemeData) {
+      this.themeCurrentPreview.style.background = currentThemeData.gradient;
+      this.themeCurrentPreview.innerHTML = `
+        <div class="theme-current-name">${currentThemeData.name}</div>
+      `;
+    }
   }
 
   async renderThemeSelector() {
@@ -61,7 +82,9 @@ class SettingsUI {
     try {
       await this.settingsService.setTheme(themeKey);
       await this.renderThemeSelector(); // Re-render to update selection
+      await this.renderCurrentTheme(); // Update current theme preview
       await this.applyCurrentTheme(); // Apply the new theme
+      this.collapseThemeSelector(); // Collapse after selection
       this.showMessage(
         `Theme changed to ${
           this.settingsService.getAvailableThemes()[themeKey].name
@@ -71,6 +94,26 @@ class SettingsUI {
       console.error("Error setting theme:", error);
       this.showMessage("Error changing theme");
     }
+  }
+
+  toggleThemeSelector() {
+    const isExpanded = this.themeSelectorWrapper.classList.contains("expanded");
+
+    if (isExpanded) {
+      this.collapseThemeSelector();
+    } else {
+      this.expandThemeSelector();
+    }
+  }
+
+  expandThemeSelector() {
+    this.themeSelectorWrapper.classList.add("expanded");
+    this.themeSelector.style.display = "grid";
+  }
+
+  collapseThemeSelector() {
+    this.themeSelectorWrapper.classList.remove("expanded");
+    this.themeSelector.style.display = "none";
   }
 
   async applyCurrentTheme() {
@@ -131,6 +174,18 @@ class SettingsEventHandler {
     // Reset settings button
     this.ui.resetSettingsBtn.addEventListener("click", () => {
       this.ui.handleResetSettings();
+    });
+
+    // Theme expand/collapse button
+    this.ui.themeCurrent.addEventListener("click", () => {
+      this.ui.toggleThemeSelector();
+    });
+
+    // Close theme selector when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!this.ui.themeSelectorWrapper.contains(e.target)) {
+        this.ui.collapseThemeSelector();
+      }
     });
 
     // TODO: Add listeners for individual setting changes

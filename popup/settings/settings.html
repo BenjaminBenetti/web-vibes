@@ -27,10 +27,19 @@
         <div class="setting-item">
           <div class="setting-info">
             <label class="setting-label">Color Theme</label>
-            <p class="setting-description">Choose your preferred gradient theme</p>
           </div>
-          <div class="theme-selector" id="themeSelector">
-            <!-- Theme options will be populated by JavaScript -->
+          <div class="theme-selector-wrapper">
+            <div class="theme-current" id="themeCurrent">
+              <div class="theme-current-preview" id="themeCurrentPreview">
+                <!-- Current theme preview will be populated by JavaScript -->
+              </div>
+              <button class="theme-expand-btn" id="themeExpandBtn" title="Change theme">
+                <span class="material-icons">expand_more</span>
+              </button>
+            </div>
+            <div class="theme-selector" id="themeSelector" style="display: none;">
+              <!-- Theme options will be populated by JavaScript -->
+            </div>
           </div>
         </div>
       </div>

@@ -72,7 +72,7 @@
 .setting-item {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
   margin-bottom: 16px;
 }
@@ -95,11 +95,98 @@
   line-height: 1.4;
 }
 
+.theme-selector-wrapper {
+  max-width: 200px;
+  position: relative;
+}
+
+.theme-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-current:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.theme-current-preview {
+  height: 32px;
+  width: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-current-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.theme-expand-btn {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.theme-expand-btn:hover {
+  background: var(--background-hover);
+}
+
+.theme-expand-btn .material-icons {
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.theme-selector-wrapper.expanded .theme-expand-btn .material-icons {
+  transform: rotate(180deg);
+}
+
 .theme-selector {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1000;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
-  max-width: 200px;
+  min-width: 200px;
+  animation: popoverFadeIn 0.2s ease;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .theme-option {

@@ -15,7 +15,7 @@ body {
 }
 
 .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--theme-gradient);
     padding: 20px;
     color: white;
 }
@@ -93,7 +93,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--theme-gradient);
     color: white;
     width: 100%;
     justify-content: center;

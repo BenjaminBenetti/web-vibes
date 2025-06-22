@@ -22,8 +22,17 @@
 
     <main class="settings-content">
       <div class="settings-section">
-        <h2>General Settings</h2>
-        <p class="settings-placeholder">Settings options will be added here.</p>
+        <h2>Appearance</h2>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Color Theme</label>
+            <p class="setting-description">Choose your preferred gradient theme</p>
+          </div>
+          <div class="theme-selector" id="themeSelector">
+            <!-- Theme options will be populated by JavaScript -->
+          </div>
+        </div>
       </div>
 
       <div class="settings-section">
@@ -40,7 +49,9 @@
   </div>
 
   <!-- Load services and dependencies -->
-  <script src="../../lib/settings/settings-service.js"></script>
+  <script src="../../lib/settings/model/settings.js"></script>
+  <script src="../../lib/settings/repo/settings-repo.js"></script>
+  <script src="../../lib/settings/service/settings-service.js"></script>
   <script src="settings.js"></script>
 </body>
 

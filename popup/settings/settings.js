@@ -9,10 +9,10 @@ class SettingsUI {
     this.settingsService = settingsService;
     this.initializeElements();
   }
-
   initializeElements() {
     this.backBtn = document.getElementById("backBtn");
     this.resetSettingsBtn = document.getElementById("resetSettingsBtn");
+    this.themeSelector = document.getElementById("themeSelector");
   }
 
   async render() {
@@ -20,8 +20,73 @@ class SettingsUI {
     const settings = await this.settingsService.getAllSettings();
     console.log("Current settings:", settings);
 
-    // TODO: Populate UI with settings values
-    // This will be implemented when specific settings are added
+    // Render theme selector
+    await this.renderThemeSelector();
+
+    // Apply current theme
+    await this.applyCurrentTheme();
+  }
+
+  async renderThemeSelector() {
+    const themes = this.settingsService.getAvailableThemes();
+    const currentSettings = await this.settingsService.getAllSettings();
+    const selectedTheme = currentSettings.selectedTheme;
+
+    this.themeSelector.innerHTML = "";
+
+    Object.entries(themes).forEach(([themeKey, themeData]) => {
+      const themeOption = document.createElement("div");
+      themeOption.className = `theme-option ${
+        selectedTheme === themeKey ? "selected" : ""
+      }`;
+      themeOption.dataset.theme = themeKey;
+
+      themeOption.innerHTML = `
+        <div class="theme-preview" style="background: ${themeData.gradient}">
+          <div class="theme-name">${themeData.name}</div>
+          <div class="theme-checkmark">
+            <span class="material-icons">check</span>
+          </div>
+        </div>
+      `;
+
+      themeOption.addEventListener("click", () =>
+        this.handleThemeSelection(themeKey)
+      );
+      this.themeSelector.appendChild(themeOption);
+    });
+  }
+
+  async handleThemeSelection(themeKey) {
+    try {
+      await this.settingsService.setTheme(themeKey);
+      await this.renderThemeSelector(); // Re-render to update selection
+      await this.applyCurrentTheme(); // Apply the new theme
+      this.showMessage(
+        `Theme changed to ${
+          this.settingsService.getAvailableThemes()[themeKey].name
+        }`
+      );
+    } catch (error) {
+      console.error("Error setting theme:", error);
+      this.showMessage("Error changing theme");
+    }
+  }
+
+  async applyCurrentTheme() {
+    const theme = await this.settingsService.getCurrentTheme();
+    const themeKey = (await this.settingsService.getAllSettings())
+      .selectedTheme;
+
+    // Remove all existing theme classes
+    document.body.classList.remove(
+      ...Object.keys(this.settingsService.getAvailableThemes()).map(
+        (key) => `theme-${key}`
+      )
+    );
+
+    // Add the current theme class
+    document.body.classList.add(`theme-${themeKey}`);
   }
 
   async handleResetSettings() {
@@ -78,7 +143,8 @@ class SettingsEventHandler {
  */
 class SettingsApp {
   constructor() {
-    this.settingsService = new SettingsService();
+    this.settingsRepository = new SettingsRepository();
+    this.settingsService = new SettingsService(this.settingsRepository);
     this.ui = new SettingsUI(this.settingsService);
     this.eventHandler = new SettingsEventHandler(this.ui);
   }

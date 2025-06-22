@@ -175,14 +175,36 @@ class PopupEventHandler {
  */
 class PopupApp {
   constructor() {
-    this.repository = new HackRepository();
-    this.hackService = new HackService(this.repository);
+    this.hackRepository = new HackRepository();
+    this.hackService = new HackService(this.hackRepository);
+    this.settingsRepository = new SettingsRepository();
+    this.settingsService = new SettingsService(this.settingsRepository);
     this.ui = new PopupUI(this.hackService);
     this.eventHandler = new PopupEventHandler(this.ui);
   }
 
   async initialize() {
+    await this.loadTheme();
     await this.ui.render();
+  }
+
+  async loadTheme() {
+    try {
+      const settings = await this.settingsService.getAllSettings();
+      const themeKey = settings.selectedTheme;
+
+      // Remove all existing theme classes
+      document.body.classList.remove(
+        ...Object.keys(this.settingsService.getAvailableThemes()).map(
+          (key) => `theme-${key}`
+        )
+      );
+
+      // Add the current theme class
+      document.body.classList.add(`theme-${themeKey}`);
+    } catch (error) {
+      console.error("Error loading theme:", error);
+    }
   }
 }
 

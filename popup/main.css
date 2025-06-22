@@ -39,3 +39,18 @@
   font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
+
+/* CSS Custom Properties for Dynamic Theming */
+:root {
+  --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Default cosmic purple */
+}
+
+/* Theme classes for dynamic switching */
+.theme-cosmic-purple { --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.theme-ocean-breeze { --theme-gradient: linear-gradient(135deg, #667db6 0%, #0082c8 25%, #0052d4 50%, #667db6 100%); }
+.theme-sunset-glow { --theme-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.theme-aurora-green { --theme-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 25%, #d299c2 50%, #fef9d7 100%); }
+.theme-midnight-blue { --theme-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); }
+.theme-tropical-sunset { --theme-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%); }
+.theme-royal-purple { --theme-gradient: linear-gradient(135deg, #8360c3 0%, #2ebf91 100%); }
+.theme-fire-blaze { --theme-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }

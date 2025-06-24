@@ -46,7 +46,26 @@
 
       <div class="settings-section">
         <h2>AI Settings</h2>
-        <p class="settings-placeholder">AI settings will be added here.</p>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label" for="aiSelector">AI Provider</label>
+            <span class="setting-description">Choose your preferred AI assistant</span>
+          </div>
+          <div class="setting-control">
+            <select class="ai-selector" id="aiSelector">
+              <!-- AI options will be populated by JavaScript -->
+            </select>
+          </div>
+        </div>
+
+        <div class="ai-credentials-section" id="aiCredentialsSection" style="display: none;">
+          <!-- AI credentials form will be populated by JavaScript -->
+        </div>
+
+        <div class="ai-status" id="aiStatus">
+          <!-- AI configuration status will be shown here -->
+        </div>
       </div>
 
       <div class="settings-actions">

@@ -55,6 +55,9 @@
   
   /* Border colors */
   --border-color: #e2e8f0;
+  
+  /* Accent color */
+  --accent-color: #667eea;
 }
 
 /* Theme classes for dynamic switching */

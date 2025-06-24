@@ -121,3 +121,54 @@
   --background-hover: #ffe6ff;
   --border-color: #ffccff;
 }
+
+/* Dark Theme Variants */
+.theme-dark-cosmic { 
+  --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background-main: #1a1d29;
+  --background-secondary: #2a2d3a;
+  --background-hover: #3a3d4a;
+  --border-color: #4a4d5a;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+}
+
+.theme-dark-ocean { 
+  --theme-gradient: linear-gradient(135deg, #667db6 0%, #0082c8 25%, #0052d4 50%, #667db6 100%);
+  --background-main: #0f1419;
+  --background-secondary: #1f2429;
+  --background-hover: #2f3439;
+  --border-color: #3f4449;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+}
+
+.theme-dark-emerald { 
+  --theme-gradient: linear-gradient(135deg, #059669 0%, #065f46 100%);
+  --background-main: #0f1a15;
+  --background-secondary: #1f2a25;
+  --background-hover: #2f3a35;
+  --border-color: #3f4a45;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+}
+
+.theme-dark-crimson { 
+  --theme-gradient: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%);
+  --background-main: #1a0f0f;
+  --background-secondary: #2a1f1f;
+  --background-hover: #3a2f2f;
+  --border-color: #4a3f3f;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+}
+
+.theme-dark-violet { 
+  --theme-gradient: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+  --background-main: #1a0f1a;
+  --background-secondary: #2a1f2a;
+  --background-hover: #3a2f3a;
+  --border-color: #4a3f4a;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+}

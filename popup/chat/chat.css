@@ -1,0 +1,523 @@
+/* Chat page specific styles */
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.back-btn .material-icons {
+    font-size: 18px;
+}
+
+.chat-content {
+    padding: 20px;
+    height: calc(100vh - 160px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ai-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--background-secondary);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.ai-status .material-icons {
+    color: var(--primary-color);
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    padding-left: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chat-message {
+    display: flex;
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message.user {
+    justify-content: flex-end;
+}
+
+.chat-message.assistant {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.chat-message.user .message-content {
+    background: var(--theme-gradient);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-message.assistant .message-content {
+    background: var(--background-secondary);
+    color: var(--text-color);
+    border-bottom-left-radius: 4px;
+}
+
+.chat-input-container {
+    border-top: 1px solid var(--border-color);
+    padding-top: 16px;
+    flex-shrink: 0;
+    background: var(--background-main);
+}
+
+.input-group {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background: var(--background-secondary);
+    color: var(--text-color);
+    resize: none;
+    min-height: 20px;
+    max-height: 100px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.chat-input:focus {
+    border-color: var(--primary-color);
+}
+
+.chat-input::placeholder {
+    color: var(--text-muted);
+}
+
+#sendButton {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#sendButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ai-not-configured {
+    text-align: center;
+    padding: 40px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-not-configured .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.ai-not-configured p {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.ai-not-configured small {
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 20px;
+}
+
+/* Enhanced typing indicator with pulsing theme-colored shadow */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--background-secondary);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    max-width: 85%;
+    position: relative;
+    animation: typingGlow 2s ease-in-out infinite;
+    backdrop-filter: blur(10px);
+}
+
+/* Pulsing glow effect using theme gradient */
+@keyframes typingGlow {
+    0%, 100% {
+        box-shadow: 
+            0 0 10px rgba(255, 255, 255, 0.1),
+            0 0 20px rgba(255, 255, 255, 0.05);
+    }
+    50% {
+        box-shadow: 
+            0 0 20px rgba(255, 255, 255, 0.2),
+            0 0 40px rgba(255, 255, 255, 0.1),
+            0 0 60px rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* Gradient Spinner for typing indicator */
+.typing-spinner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gradient-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    position: relative;
+    animation: spinWithPulse 2s linear infinite;
+}
+
+.gradient-spinner::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    background: var(--theme-gradient);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    padding: 2px;
+}
+
+/* Fallback for browsers that don't support mask */
+@supports not (mask: linear-gradient(#fff 0 0)) {
+    .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, var(--primary-color), transparent);
+        border: none;
+    }
+    
+    .gradient-spinner::before {
+        display: none;
+    }
+    
+    .gradient-spinner::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+        background: var(--background-secondary);
+        border-radius: 50%;
+    }
+}
+
+@keyframes spinWithPulse {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    25% {
+        transform: scale(1.05) rotate(90deg);
+    }
+    50% {
+        transform: scale(1) rotate(180deg);
+    }
+    75% {
+        transform: scale(1.05) rotate(270deg);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.1) rotate(180deg);
+    }
+}
+
+/* Theme-specific gradient spinners */
+.theme-cosmic-purple .gradient-spinner::before {
+    background: linear-gradient(135deg, #8a2be2, #4b0082);
+}
+
+.theme-sunset-glow .gradient-spinner::before {
+    background: linear-gradient(135deg, #ff5e4d, #ff9a00);
+}
+
+.theme-ocean-breeze .gradient-spinner::before {
+    background: linear-gradient(135deg, #00bfff, #1e90ff);
+}
+
+.theme-forest-fresh .gradient-spinner::before {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.theme-midnight-aurora .gradient-spinner::before {
+    background: linear-gradient(135deg, #4f46e5, #8b5cf6, #a855f7);
+}
+
+.theme-rose-gold .gradient-spinner::before {
+    background: linear-gradient(135deg, #f43f5e, #fb7185);
+}
+
+.theme-cyber-neon .gradient-spinner::before {
+    background: linear-gradient(135deg, #06b6d4, #22d3ee);
+}
+
+.theme-volcanic-ember .gradient-spinner::before {
+    background: linear-gradient(135deg, #ef4444, #f97316);
+}
+
+/* For fallback browsers */
+@supports not (mask: linear-gradient(#fff 0 0)) {
+    .theme-cosmic-purple .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, #8a2be2, #4b0082, transparent);
+    }
+    
+    .theme-sunset-glow .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, #ff5e4d, #ff9a00, transparent);
+    }
+    
+    .theme-ocean-breeze .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, #00bfff, #1e90ff, transparent);
+    }
+    
+    .theme-forest-fresh .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, #22c55e, #16a34a, transparent);
+    }
+    
+    .theme-midnight-aurora .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, #4f46e5, #8b5cf6, #a855f7, transparent);
+    }
+    
+    .theme-rose-gold .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, #f43f5e, #fb7185, transparent);
+    }
+    
+    .theme-cyber-neon .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, #06b6d4, #22d3ee, transparent);
+    }
+    
+    .theme-volcanic-ember .gradient-spinner {
+        background: conic-gradient(from 0deg, transparent, #ef4444, #f97316, transparent);
+    }
+}
+
+/* Spinner text */
+.spinner-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-style: italic;
+    transition: opacity 0.3s ease;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 2px;
+}
+
+.typing-dot {
+    width: 4px;
+    height: 4px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: typingPulse 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingPulse {
+    0%, 80%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    40% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* Code blocks and syntax highlighting */
+.message-content code {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 13px;
+}
+
+.message-content pre {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+
+.message-content pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Vibe preview and save buttons */
+.vibe-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.vibe-actions .btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+.vibe-preview {
+    background: rgba(var(--theme-gradient), 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+    margin-top: 8px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Enhanced loading states */
+.chat-input-container.loading .chat-input {
+    pointer-events: none;
+    opacity: 0.7;
+    animation: inputPulse 2s ease-in-out infinite;
+}
+
+.chat-input-container.loading #sendButton {
+    pointer-events: none;
+    opacity: 0.7;
+    animation: buttonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes inputPulse {
+    0%, 100% {
+        border-color: var(--border-color);
+    }
+    50% {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+    }
+}
+
+@keyframes buttonPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Loading shimmer effect for messages being processed */
+.message-content.processing {
+    position: relative;
+    overflow: hidden;
+}
+
+.message-content.processing::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}

@@ -25,42 +25,56 @@ class AIChatManager {
   }
 
   setupEventListeners() {
-    // Close modal
-    this.closeButton.addEventListener("click", () => {
-      this.closeModal();
-    });
-
-    // Close modal when clicking overlay
-    this.modal.addEventListener("click", (e) => {
-      if (e.target === this.modal) {
+    // Close modal (only if elements exist - for modal context)
+    if (this.closeButton) {
+      this.closeButton.addEventListener("click", () => {
         this.closeModal();
-      }
-    });
+      });
+    }
 
-    // Send message
-    this.sendButton.addEventListener("click", () => {
-      this.sendMessage();
-    });
+    // Close modal when clicking overlay (only if modal exists)
+    if (this.modal) {
+      this.modal.addEventListener("click", (e) => {
+        if (e.target === this.modal) {
+          this.closeModal();
+        }
+      });
+    }
 
-    // Send message on Enter key
-    this.chatInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
+    // Send message (always present)
+    if (this.sendButton) {
+      this.sendButton.addEventListener("click", () => {
         this.sendMessage();
-      }
-    });
+      });
+    }
 
-    // Go to settings
-    this.goToSettingsBtn.addEventListener("click", () => {
-      this.closeModal();
-      window.location.href = "settings/settings.html";
-    });
+    // Send message on Enter key (always present)
+    if (this.chatInput) {
+      this.chatInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          this.sendMessage();
+        }
+      });
+    }
+
+    // Go to settings (only if element exists)
+    if (this.goToSettingsBtn) {
+      this.goToSettingsBtn.addEventListener("click", () => {
+        if (this.modal) {
+          this.closeModal();
+        }
+        window.location.href = "settings/settings.html";
+      });
+    }
   }
 
   async initializeChat() {
     try {
       // Check if AI is configured and ready
-      this.aiStatusText.textContent = "Checking AI configuration...";
+      if (this.aiStatusText) {
+        this.aiStatusText.textContent = "Checking AI configuration...";
+      }
 
       const isReady = await this.aiService.isReady();
       if (!isReady) {
@@ -68,7 +82,9 @@ class AIChatManager {
         return;
       }
 
-      this.aiStatusText.textContent = "AI ready - Start chatting!";
+      if (this.aiStatusText) {
+        this.aiStatusText.textContent = "AI ready - Start chatting!";
+      }
       this.showChatInterface();
 
       // Get current site hostname for context
@@ -84,42 +100,80 @@ class AIChatManager {
       }
     } catch (error) {
       console.error("Error initializing AI chat:", error);
-      this.aiStatusText.textContent = "Error initializing AI";
+      if (this.aiStatusText) {
+        this.aiStatusText.textContent = "Error initializing AI";
+      }
       this.showAINotConfigured();
     }
   }
 
   showAINotConfigured() {
-    this.chatContainer.style.display = "none";
-    this.aiNotConfigured.style.display = "block";
-    this.aiStatus.style.display = "none";
+    if (this.chatContainer) {
+      this.chatContainer.style.display = "none";
+    }
+    if (this.aiNotConfigured) {
+      this.aiNotConfigured.style.display = "block";
+    }
+    if (this.aiStatus) {
+      this.aiStatus.style.display = "none";
+    }
   }
 
   showChatInterface() {
-    this.chatContainer.style.display = "flex";
-    this.aiNotConfigured.style.display = "none";
-    this.aiStatus.style.display = "flex";
+    if (this.chatContainer) {
+      this.chatContainer.style.display = "flex";
+    }
+    if (this.aiNotConfigured) {
+      this.aiNotConfigured.style.display = "none";
+    }
+    if (this.aiStatus) {
+      this.aiStatus.style.display = "flex";
+    }
   }
 
   closeModal() {
-    this.modal.classList.remove("visible");
+    if (this.modal) {
+      this.modal.classList.remove("visible");
+    }
     // Clear chat input
-    this.chatInput.value = "";
+    if (this.chatInput) {
+      this.chatInput.value = "";
+    }
   }
 
   async sendMessage() {
+    if (!this.chatInput) return;
+
     const message = this.chatInput.value.trim();
     if (!message) return;
 
+    // Store original placeholder
+    const originalPlaceholder =
+      this.chatInput.placeholder || "Type a message...";
+
     // Clear input and disable send button
     this.chatInput.value = "";
-    this.sendButton.disabled = true;
+    this.chatInput.placeholder = "AI is thinking...";
+    if (this.sendButton) {
+      this.sendButton.disabled = true;
+    }
+
+    // Add loading state to input container
+    const inputContainer = document.querySelector(".chat-input-container");
+    if (inputContainer) {
+      inputContainer.classList.add("loading");
+    }
 
     // Add user message to chat
     this.addMessage(message, "user");
 
-    // Show typing indicator
+    // Show enhanced typing indicator
     const typingIndicator = this.showTypingIndicator();
+
+    // Update spinner text periodically for engaging feedback
+    const textUpdateInterval = setInterval(() => {
+      this.updateSpinnerText(typingIndicator);
+    }, 10000); // Update every 10 seconds
 
     try {
       // Create context-aware prompt
@@ -127,6 +181,9 @@ class AIChatManager {
 
       // Send to AI
       const response = await this.aiService.sendPrompt(contextPrompt);
+
+      // Clear the text update interval
+      clearInterval(textUpdateInterval);
 
       // Remove typing indicator
       this.removeTypingIndicator(typingIndicator);
@@ -144,13 +201,21 @@ class AIChatManager {
       }
     } catch (error) {
       console.error("Error sending message:", error);
+      clearInterval(textUpdateInterval);
       this.removeTypingIndicator(typingIndicator);
       this.addMessage(
         "Sorry, I couldn't process your request. Please try again.",
         "assistant"
       );
     } finally {
-      this.sendButton.disabled = false;
+      // Remove loading state and re-enable send button
+      if (inputContainer) {
+        inputContainer.classList.remove("loading");
+      }
+      this.chatInput.placeholder = originalPlaceholder;
+      if (this.sendButton) {
+        this.sendButton.disabled = false;
+      }
     }
   }
 
@@ -168,6 +233,8 @@ Keep responses concise and focused on web customization.`;
   }
 
   addMessage(content, role) {
+    if (!this.chatMessages) return;
+
     const messageDiv = document.createElement("div");
     messageDiv.className = `chat-message ${role}`;
 
@@ -183,19 +250,31 @@ Keep responses concise and focused on web customization.`;
   }
 
   showTypingIndicator() {
+    if (!this.chatMessages) return null;
+
     const typingDiv = document.createElement("div");
-    typingDiv.className = "chat-message assistant typing-indicator";
+    typingDiv.className = "chat-message assistant";
     typingDiv.innerHTML = `
-      <div class="message-content">
-        <div class="typing-dots">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
+      <div class="message-content typing-indicator">
+        <div class="typing-spinner">
+          <div class="gradient-spinner"></div>
+          <span class="spinner-text">${this.getRandomThinkingMessage()}</span>
         </div>
       </div>
     `;
 
+    // Add with fade-in animation
+    typingDiv.style.opacity = "0";
+    typingDiv.style.transform = "translateY(10px)";
     this.chatMessages.appendChild(typingDiv);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      typingDiv.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+      typingDiv.style.opacity = "1";
+      typingDiv.style.transform = "translateY(0)";
+    });
+
     this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
 
     return typingDiv;
@@ -203,7 +282,36 @@ Keep responses concise and focused on web customization.`;
 
   removeTypingIndicator(indicator) {
     if (indicator && indicator.parentNode) {
-      indicator.parentNode.removeChild(indicator);
+      // Smooth fade-out animation
+      indicator.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+      indicator.style.opacity = "0";
+      indicator.style.transform = "translateY(-10px)";
+
+      // Remove after animation completes
+      setTimeout(() => {
+        if (indicator.parentNode) {
+          indicator.parentNode.removeChild(indicator);
+        }
+      }, 300);
+    }
+  }
+
+  /**
+   * Update the spinner text periodically during long responses
+   */
+  updateSpinnerText(indicator) {
+    if (!indicator) return;
+
+    const spinnerText = indicator.querySelector(".spinner-text");
+    if (spinnerText) {
+      const newMessage = this.getRandomThinkingMessage();
+
+      // Fade out, change text, fade in
+      spinnerText.style.opacity = "0.5";
+      setTimeout(() => {
+        spinnerText.textContent = newMessage;
+        spinnerText.style.opacity = "1";
+      }, 200);
     }
   }
 
@@ -226,7 +334,7 @@ Keep responses concise and focused on web customization.`;
           this.createVibeFromCode(content);
         });
 
-        const lastMessage = this.chatMessages.lastElementChild;
+        const lastMessage = this.chatMessages?.lastElementChild;
         if (lastMessage && lastMessage.classList.contains("assistant")) {
           const messageContent = lastMessage.querySelector(".message-content");
           messageContent.appendChild(createVibeButton);
@@ -289,5 +397,22 @@ Keep responses concise and focused on web customization.`;
       console.error("Error creating vibe from code:", error);
       alert("Error creating vibe. Please try again.");
     }
+  }
+
+  /**
+   * Get a random thinking message for the spinner
+   */
+  getRandomThinkingMessage() {
+    const messages = [
+      "AI is thinking...",
+      "Crafting your vibe...",
+      "Analyzing your request...",
+      "Generating ideas...",
+      "Working on it...",
+      "Brainstorming solutions...",
+      "Processing your vision...",
+      "Creating something awesome...",
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
   }
 }

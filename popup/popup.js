@@ -110,13 +110,8 @@ class PopupUI {
   }
 
   handleAddHack() {
-    // Open the AI chat modal
-    const modal = document.getElementById("addVibeModal");
-    if (modal) {
-      modal.classList.add("visible");
-      // Initialize AI chat when modal opens
-      window.aiChatManager.initializeChat();
-    }
+    // Navigate to the AI chat page
+    window.location.href = "chat/chat.html";
   }
 
   handleSettingsNavigation() {
@@ -180,28 +175,13 @@ class PopupApp {
     this.hackService = new HackService(this.hackRepository);
     this.settingsRepository = new SettingsRepository();
     this.settingsService = new SettingsService(this.settingsRepository);
-    this.aiService = new AIService(this.settingsService);
     this.ui = new PopupUI(this.hackService);
     this.eventHandler = new PopupEventHandler(this.ui);
-    this.aiChatManager = new AIChatManager(this.aiService, this.hackService);
-
-    // Make available globally for modal access
-    window.aiChatManager = this.aiChatManager;
-    window.popupUI = this.ui;
   }
 
   async initialize() {
     await this.loadTheme();
-    await this.initializeAI();
     await this.ui.render();
-  }
-
-  async initializeAI() {
-    try {
-      await this.aiService.initialize();
-    } catch (error) {
-      console.warn("AI service initialization failed:", error);
-    }
   }
 
   async loadTheme() {

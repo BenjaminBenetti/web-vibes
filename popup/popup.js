@@ -110,12 +110,13 @@ class PopupUI {
   }
 
   handleAddHack() {
-    // TODO: Implement add hack functionality
-    // This will open a modal or new page to create a hack
-    console.log("Add hack clicked - TODO: Implement hack creation UI");
-    alert(
-      "Hack creation UI coming soon!\n\nThis will allow you to:\n• Write custom CSS\n• Add JavaScript\n• Preview changes\n• Save your hack"
-    );
+    // Open the AI chat modal
+    const modal = document.getElementById("addVibeModal");
+    if (modal) {
+      modal.classList.add("visible");
+      // Initialize AI chat when modal opens
+      window.aiChatManager.initializeChat();
+    }
   }
 
   handleSettingsNavigation() {
@@ -179,13 +180,28 @@ class PopupApp {
     this.hackService = new HackService(this.hackRepository);
     this.settingsRepository = new SettingsRepository();
     this.settingsService = new SettingsService(this.settingsRepository);
+    this.aiService = new AIService(this.settingsService);
     this.ui = new PopupUI(this.hackService);
     this.eventHandler = new PopupEventHandler(this.ui);
+    this.aiChatManager = new AIChatManager(this.aiService, this.hackService);
+
+    // Make available globally for modal access
+    window.aiChatManager = this.aiChatManager;
+    window.popupUI = this.ui;
   }
 
   async initialize() {
     await this.loadTheme();
+    await this.initializeAI();
     await this.ui.render();
+  }
+
+  async initializeAI() {
+    try {
+      await this.aiService.initialize();
+    } catch (error) {
+      console.warn("AI service initialization failed:", error);
+    }
   }
 
   async loadTheme() {

@@ -42,13 +42,69 @@
     </div>
   </div>
 
+  <!-- Add New Vibe Modal -->
+  <div class="modal-overlay" id="addVibeModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Create New Vibe with AI</h2>
+        <button class="modal-close" id="closeModal">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="ai-status" id="aiStatus">
+          <span class="material-icons">smart_toy</span>
+          <span id="aiStatusText">Checking AI configuration...</span>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-message assistant">
+              <div class="message-content">
+                Hi! I'm here to help you create a custom vibe for this website.
+                Tell me what you'd like to change or improve about the current page design.
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-container">
+            <div class="input-group">
+              <input type="text" id="chatInput" placeholder="Describe what you want to change on this website..."
+                class="chat-input">
+              <button id="sendButton" class="btn btn-primary">
+                <span class="material-icons">send</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-not-configured" id="aiNotConfigured" style="display: none;">
+          <div class="empty-icon">🤖</div>
+          <p>AI is not configured</p>
+          <small>Go to Settings to configure your AI provider first</small>
+          <button class="btn btn-secondary" id="goToSettings">
+            <span class="material-icons">settings</span>
+            Configure AI
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Load library files in dependency order -->
   <script src="../lib/settings/model/settings.js"></script>
   <script src="../lib/settings/repo/settings-repo.js"></script>
   <script src="../lib/settings/service/settings-service.js"></script>
+  <script src="../lib/ai/model/ai-prompt.js"></script>
+  <script src="../lib/ai/model/ai-response.js"></script>
+  <script src="../lib/ai/backend/ai-backend.js"></script>
+  <script src="../lib/ai/backend/gemini-backend.js"></script>
+  <script src="../lib/ai/service/ai-service.js"></script>
   <script src="../lib/hack/model/hack.js"></script>
   <script src="../lib/hack/repo/hack-repo.js"></script>
   <script src="../lib/hack/service/hack-service.js"></script>
+  <script src="ai-chat-manager.js"></script>
   <script src="popup.js"></script>
 </body>
 

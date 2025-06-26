@@ -421,37 +421,30 @@ class AIChatManager {
         break;
 
       case "ai_response":
-        this.addMessage(content, "assistant");
+        // Clean the AI response to remove tool calls and internal details
+        const cleanedContent = this.cleanAIResponse(content);
+        if (cleanedContent.trim()) {
+          this.addMessage(cleanedContent, "assistant");
+        }
         break;
 
       case "tool_execution":
+        // Show a subtle indication that the AI is working
         this.addMessage(
-          `🔧 Using tool: ${toolName}${
-            iteration ? ` (iteration ${iteration})` : ""
-          }`,
+          `🔧 ${this.getToolActionMessage(toolName)}...`,
           "system"
         );
         break;
 
       case "tool_result":
         if (result.success) {
-          let resultMessage = `✅ ${toolName} completed successfully`;
-
-          // Add specific details based on tool type
-          if (toolName === "save_css" || toolName === "save_js") {
-            resultMessage += result.data?.message
-              ? `: ${result.data.message}`
-              : "";
-          } else if (toolName === "read_css" || toolName === "read_js") {
-            const isEmpty = result.data?.isEmpty;
-            const codeLength = result.data?.code?.length || 0;
-            resultMessage += isEmpty
-              ? " (no existing code)"
-              : ` (${codeLength} characters)`;
-          }
-
-          this.addMessage(resultMessage, "system");
+          // Show a completion message for successful tool execution
+          this.addMessage(
+            `✅ ${this.getToolCompletionMessage(toolName)}`,
+            "system"
+          );
         } else {
+          // Show error for failed tool execution
           this.addMessage(`❌ ${toolName} failed: ${result.error}`, "system");
         }
         break;
@@ -463,6 +456,58 @@ class AIChatManager {
       default:
         console.log("Unknown agentic message type:", type, messageData);
     }
+  }
+
+  /**
+   * Clean AI response by removing tool calls and internal details
+   * @param {string} content - Raw AI response content
+   * @returns {string} Cleaned content for display to user
+   */
+  cleanAIResponse(content) {
+    // Remove tool calls (TOOL_CALL: and PARAMETERS: lines)
+    let cleaned = content.replace(/TOOL_CALL:\s*\w+/g, "");
+    cleaned = cleaned.replace(/PARAMETERS:\s*\{[\s\S]*?\}/g, "");
+
+    // Remove tool result JSON blocks
+    cleaned = cleaned.replace(/Tool Result \([^)]+\):\s*\{[\s\S]*?\}/g, "");
+
+    // Clean up extra whitespace and newlines
+    cleaned = cleaned.replace(/\n\s*\n\s*\n/g, "\n\n"); // Remove triple+ newlines
+    cleaned = cleaned.replace(/^\s+|\s+$/g, ""); // Trim start/end whitespace
+
+    return cleaned;
+  }
+
+  /**
+   * Get user-friendly action message for tool execution
+   * @param {string} toolName - Name of the tool being executed
+   * @returns {string} User-friendly action message
+   */
+  getToolActionMessage(toolName) {
+    const actionMessages = {
+      save_css: "Updating CSS styles",
+      save_js: "Updating JavaScript code",
+      read_css: "Reading existing CSS",
+      read_js: "Reading existing JavaScript",
+    };
+
+    return actionMessages[toolName] || `Executing ${toolName}`;
+  }
+
+  /**
+   * Get user-friendly completion message for tool execution
+   * @param {string} toolName - Name of the tool that completed
+   * @returns {string} User-friendly completion message
+   */
+  getToolCompletionMessage(toolName) {
+    const completionMessages = {
+      save_css: "CSS styles updated",
+      save_js: "JavaScript code updated",
+      read_css: "CSS code analyzed",
+      read_js: "JavaScript code analyzed",
+    };
+
+    return completionMessages[toolName] || `${toolName} completed`;
   }
 
   /**

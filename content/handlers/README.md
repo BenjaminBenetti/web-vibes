@@ -11,8 +11,7 @@ content/
     ├── shared-utils.js           # Shared utilities used across handlers
     ├── message-router.js         # Routes messages to appropriate handlers
     ├── apply-hack-handler.js     # Handles hack application to pages
-    ├── remove-hack-handler.js    # Handles hack removal from pages
-    └── get-page-info-handler.js  # Gets information about current page
+    └── remove-hack-handler.js    # Handles hack removal from pages
 ```
 
 ## Handler Responsibilities
@@ -27,11 +26,6 @@ content/
 - Removes specific hacks from the current webpage
 - Cleans up DOM elements created by hacks
 - Handles the `REMOVE_HACK` message type
-
-### get-page-info-handler.js
-- Collects and returns information about the current webpage
-- Includes URL, title, viewport, and other page metadata
-- Handles the `GET_PAGE_INFO` message type
 
 ### message-router.js
 - Routes incoming Chrome extension messages to appropriate handlers

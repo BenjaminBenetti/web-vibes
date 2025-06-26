@@ -1,12 +1,13 @@
 /**
  * AI Chat Manager for the Add New Vibe modal
- * Handles the chat interface and AI interactions for creating new vibes
+ * Handles the chat interface and AI interactions for creating and editing vibes using agentic service
  */
 class AIChatManager {
-  constructor(aiService, hackService) {
-    this.aiService = aiService;
+  constructor(agenticService, hackService) {
+    this.agenticService = agenticService;
     this.hackService = hackService;
     this.currentHostname = "";
+    this.currentHack = null; // Track current hack being edited
     this.initializeElements();
     this.setupEventListeners();
   }
@@ -71,12 +72,12 @@ class AIChatManager {
 
   async initializeChat() {
     try {
-      // Check if AI is configured and ready
+      // Check if agentic service is configured and ready
       if (this.aiStatusText) {
         this.aiStatusText.textContent = "Checking AI configuration...";
       }
 
-      const isReady = await this.aiService.isReady();
+      const isReady = this.agenticService && this.agenticService.isReady();
       if (!isReady) {
         this.showAINotConfigured();
         return;
@@ -98,6 +99,9 @@ class AIChatManager {
         console.warn("Could not get current tab hostname:", error);
         this.currentHostname = "unknown";
       }
+
+      // Create a new temporary hack for the AI to work with
+      await this.createNewHackForEditing();
     } catch (error) {
       console.error("Error initializing AI chat:", error);
       if (this.aiStatusText) {
@@ -176,38 +180,21 @@ class AIChatManager {
     }, 10000); // Update every 10 seconds
 
     try {
-      // Create context-aware prompt
-      const contextPrompt = this.createContextPrompt(message);
-
-      // Send to AI
-      const response = await this.aiService.sendPrompt(contextPrompt);
-
+      // Use agentic service for all AI interactions
+      await this.handleAgenticMessage(message);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      this.addMessage(
+        "Sorry, I couldn't process your request. Please try again.",
+        "assistant"
+      );
+    } finally {
       // Clear the text update interval
       clearInterval(textUpdateInterval);
 
       // Remove typing indicator
       this.removeTypingIndicator(typingIndicator);
 
-      if (response.success) {
-        this.addMessage(response.content, "assistant");
-
-        // Check if the response contains code that could be a vibe
-        this.analyzeResponseForCode(response.content);
-      } else {
-        this.addMessage(
-          `Sorry, I encountered an error: ${response.error}`,
-          "assistant"
-        );
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      clearInterval(textUpdateInterval);
-      this.removeTypingIndicator(typingIndicator);
-      this.addMessage(
-        "Sorry, I couldn't process your request. Please try again.",
-        "assistant"
-      );
-    } finally {
       // Remove loading state and re-enable send button
       if (inputContainer) {
         inputContainer.classList.remove("loading");
@@ -219,17 +206,21 @@ class AIChatManager {
     }
   }
 
-  createContextPrompt(userMessage) {
-    const contextInfo = `
-Current website: ${this.currentHostname}
-User request: ${userMessage}
-
-You are helping create a custom CSS/JavaScript "vibe" for this website. 
-Please provide helpful suggestions and code snippets when appropriate.
-If you generate CSS or JavaScript code, please format it clearly and explain what it does.
-Keep responses concise and focused on web customization.`;
-
-    return AIPrompt.createUserPrompt(contextInfo);
+  /**
+   * Get a random thinking message for the spinner
+   */
+  getRandomThinkingMessage() {
+    const agenticMessages = [
+      "AI is analyzing your request...",
+      "Planning the best approach...",
+      "Reading existing code...",
+      "Crafting your modifications...",
+      "Testing code solutions...",
+      "Optimizing the implementation...",
+      "Preparing code changes...",
+      "Building your vibe...",
+    ];
+    return agenticMessages[Math.floor(Math.random() * agenticMessages.length)];
   }
 
   addMessage(content, role) {
@@ -240,7 +231,14 @@ Keep responses concise and focused on web customization.`;
 
     const contentDiv = document.createElement("div");
     contentDiv.className = "message-content";
-    contentDiv.textContent = content;
+
+    // Handle system messages with special styling
+    if (role === "system") {
+      contentDiv.innerHTML = `<em>${content}</em>`;
+      messageDiv.classList.add("system-message");
+    } else {
+      contentDiv.textContent = content;
+    }
 
     messageDiv.appendChild(contentDiv);
     this.chatMessages.appendChild(messageDiv);
@@ -315,90 +313,6 @@ Keep responses concise and focused on web customization.`;
     }
   }
 
-  analyzeResponseForCode(content) {
-    // Simple regex to detect CSS or JS code blocks
-    const codeBlockRegex = /```(?:css|javascript|js)?\s*([\s\S]*?)```/gi;
-    const matches = content.match(codeBlockRegex);
-
-    if (matches && matches.length > 0) {
-      // Show option to create vibe from the code
-      setTimeout(() => {
-        const createVibeButton = document.createElement("button");
-        createVibeButton.className = "btn btn-primary";
-        createVibeButton.innerHTML = `
-          <span class="material-icons">add</span>
-          Create Vibe from this code
-        `;
-
-        createVibeButton.addEventListener("click", () => {
-          this.createVibeFromCode(content);
-        });
-
-        const lastMessage = this.chatMessages?.lastElementChild;
-        if (lastMessage && lastMessage.classList.contains("assistant")) {
-          const messageContent = lastMessage.querySelector(".message-content");
-          messageContent.appendChild(createVibeButton);
-        }
-      }, 500);
-    }
-  }
-
-  async createVibeFromCode(content) {
-    try {
-      // Extract code from the response
-      const codeBlockRegex = /```(?:css|javascript|js)?\s*([\s\S]*?)```/gi;
-      const matches = [...content.matchAll(codeBlockRegex)];
-
-      if (matches.length === 0) {
-        alert("No code blocks found to create a vibe from.");
-        return;
-      }
-
-      // Create a simple vibe name based on current timestamp
-      const vibeName = `AI Generated Vibe - ${new Date().toLocaleTimeString()}`;
-
-      // Combine all code blocks
-      let cssCode = "";
-      let jsCode = "";
-
-      matches.forEach((match) => {
-        const code = match[1].trim();
-        // Simple heuristic: if it contains selectors and properties, it's CSS
-        if (code.includes("{") && code.includes(":") && code.includes(";")) {
-          cssCode += code + "\n";
-        } else {
-          jsCode += code + "\n";
-        }
-      });
-
-      // Create hack object
-      const hack = new Hack(
-        vibeName,
-        "Generated by AI assistant",
-        this.currentHostname,
-        cssCode.trim(),
-        jsCode.trim(),
-        true // enabled by default
-      );
-
-      // Save the hack
-      await this.hackService.addHack(hack);
-
-      // Close modal and refresh the popup
-      this.closeModal();
-
-      // Trigger a refresh of the popup UI
-      if (window.popupUI) {
-        await window.popupUI.render();
-      }
-
-      alert("Vibe created successfully!");
-    } catch (error) {
-      console.error("Error creating vibe from code:", error);
-      alert("Error creating vibe. Please try again.");
-    }
-  }
-
   /**
    * Get a random thinking message for the spinner
    */
@@ -414,5 +328,308 @@ Keep responses concise and focused on web customization.`;
       "Creating something awesome...",
     ];
     return messages[Math.floor(Math.random() * messages.length)];
+  }
+
+  /**
+   * Set the current hack to edit
+   * @param {Hack} hack - The hack to edit
+   */
+  setCurrentHack(hack) {
+    this.currentHack = hack;
+    if (this.agenticService) {
+      this.agenticService.setCurrentHack(hack);
+
+      // Add a system message to indicate which hack is being edited
+      this.addMessage(
+        `🎯 Now editing "${hack.name}". I can read and modify your CSS/JavaScript code directly.`,
+        "system"
+      );
+    }
+  }
+
+  /**
+   * Clear the current hack
+   */
+  clearCurrentHack() {
+    this.currentHack = null;
+    this.addMessage(
+      "💬 No specific hack selected. I can help you create new code or discuss web development.",
+      "system"
+    );
+  }
+
+  /**
+   * Check if agentic service is available and ready
+   */
+  isReady() {
+    return this.agenticService && this.agenticService.isReady();
+  }
+
+  /**
+   * Handle message using agentic service with iterative tool execution
+   * @param {string} message - User message
+   */
+  async handleAgenticMessage(message) {
+    // Since we always create a hack on initialization, we can always use the agentic service
+    const result = await this.agenticService.startAgenticLoop(message, {
+      maxIterations: 10,
+      verbose: false,
+      onMessage: (messageData) => {
+        this.handleAgenticMessage_Callback(messageData);
+      },
+    });
+
+    // Handle result
+    await this.handleAgenticResult(result, message);
+  }
+
+  /**
+   * Handle the result of an agentic loop execution
+   * @param {Object} result - Result from agentic service
+   * @param {string} originalMessage - Original user message
+   */
+  async handleAgenticResult(result, originalMessage) {
+    if (result.success) {
+      if (!result.completed) {
+        // Loop ended due to max iterations
+        this.addMessage(
+          "🔄 I've reached the maximum number of iterations. The task may not be fully complete. You can continue by sending another message.",
+          "system"
+        );
+      }
+
+      // Offer to save the hack if it has been modified
+      if (this.currentHack && this.hasHackBeenModified()) {
+        this.offerToSaveHack();
+      }
+    } else {
+      this.addMessage(`❌ Task failed: ${result.error}`, "system");
+    }
+  }
+
+  /**
+   * Handle real-time messages from the agentic loop
+   * @param {Object} messageData - Message data from agentic service
+   */
+  handleAgenticMessage_Callback(messageData) {
+    const { type, content, toolName, result, iteration, timestamp } =
+      messageData;
+
+    switch (type) {
+      case "user_request":
+        // User request is already shown, no need to duplicate
+        break;
+
+      case "ai_response":
+        this.addMessage(content, "assistant");
+        break;
+
+      case "tool_execution":
+        this.addMessage(
+          `🔧 Using tool: ${toolName}${
+            iteration ? ` (iteration ${iteration})` : ""
+          }`,
+          "system"
+        );
+        break;
+
+      case "tool_result":
+        if (result.success) {
+          let resultMessage = `✅ ${toolName} completed successfully`;
+
+          // Add specific details based on tool type
+          if (toolName === "save_css" || toolName === "save_js") {
+            resultMessage += result.data?.message
+              ? `: ${result.data.message}`
+              : "";
+          } else if (toolName === "read_css" || toolName === "read_js") {
+            const isEmpty = result.data?.isEmpty;
+            const codeLength = result.data?.code?.length || 0;
+            resultMessage += isEmpty
+              ? " (no existing code)"
+              : ` (${codeLength} characters)`;
+          }
+
+          this.addMessage(resultMessage, "system");
+        } else {
+          this.addMessage(`❌ ${toolName} failed: ${result.error}`, "system");
+        }
+        break;
+
+      case "completion":
+        this.addMessage("✨ Task completed successfully!", "system");
+        break;
+
+      default:
+        console.log("Unknown agentic message type:", type, messageData);
+    }
+  }
+
+  /**
+   * Check if the AI response suggests creating a new hack
+   * @param {string} response - AI response text
+   * @returns {boolean} True if should offer to create hack
+   */
+  shouldOfferToCreateHack(response) {
+    // The agentic service handles code creation through its tools
+    // We don't need to parse code blocks here anymore
+    return false;
+  }
+
+  /**
+   * Create a new vibe from AI response containing code
+   * Note: This method is deprecated as the agentic service handles hack creation
+   * @param {string} response - AI response with code
+   * @param {string} originalMessage - Original user request
+   */
+  async createVibeFromAIResponse(response, originalMessage) {
+    // The agentic service handles hack creation through its tools
+    // This method is no longer needed but kept for backward compatibility
+    this.addMessage(
+      "Hack creation is now handled automatically by the AI assistant.",
+      "system"
+    );
+  }
+
+  /**
+   * Extract code blocks from AI response
+   * Note: This method is deprecated as the agentic service handles code extraction
+   * @param {string} response - AI response text
+   * @returns {Object} Object with css and js arrays
+   */
+  extractCodeBlocks(response) {
+    // The agentic service handles code extraction through its tools
+    // Return empty object since this logic is no longer needed
+    return { css: [], js: [] };
+  }
+
+  /**
+   * Generate a vibe name from user message
+   * Note: This method is deprecated as the agentic service handles naming
+   * @param {string} message - User message
+   * @returns {string} Generated vibe name
+   */
+  generateVibeName(message) {
+    // The agentic service handles naming through its tools
+    return "Custom Vibe";
+  }
+
+  /**
+   * Create a new temporary hack for the AI to work with
+   */
+  async createNewHackForEditing() {
+    try {
+      // Generate a temporary name for the new vibe
+      const timestamp = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const tempName = `New Vibe (${timestamp})`;
+
+      // Create a new hack object with empty CSS and JS
+      const hackId = "temp-vibe-" + Date.now();
+      const newHack = new Hack(
+        hackId,
+        tempName,
+        `New vibe for ${this.currentHostname}`,
+        "", // Empty CSS to start
+        "", // Empty JS to start
+        true, // Enabled by default
+        new Date()
+      );
+
+      // Set this as the current hack for the agentic service
+      this.setCurrentHack(newHack);
+
+      // Add a welcome message
+      this.addMessage(
+        `🎨 Ready to create a new vibe for ${this.currentHostname}! Tell me what you'd like to customize and I'll help you build it.`,
+        "system"
+      );
+    } catch (error) {
+      console.error("Error creating new hack for editing:", error);
+      this.addMessage(
+        "⚠️ Could not create a new vibe workspace. You can still chat with me for help and suggestions.",
+        "system"
+      );
+    }
+  }
+
+  /**
+   * Check if the current hack has been modified (has any CSS or JS code)
+   * @returns {boolean} True if hack has been modified
+   */
+  hasHackBeenModified() {
+    if (!this.currentHack) return false;
+    return (
+      this.currentHack.cssCode.trim() !== "" ||
+      this.currentHack.jsCode.trim() !== ""
+    );
+  }
+
+  /**
+   * Offer to save the current hack
+   */
+  offerToSaveHack() {
+    setTimeout(() => {
+      const saveButton = document.createElement("button");
+      saveButton.className = "btn btn-primary";
+      saveButton.innerHTML = `
+        <span class="material-icons">save</span>
+        Save this vibe
+      `;
+
+      saveButton.addEventListener("click", () => {
+        this.saveCurrentHack();
+      });
+
+      // Add button after the last system message
+      const messages = this.chatMessages?.querySelectorAll(".chat-message");
+      if (messages && messages.length > 0) {
+        const lastMessage = messages[messages.length - 1];
+        const messageContent = lastMessage.querySelector(".message-content");
+        if (messageContent) {
+          messageContent.appendChild(saveButton);
+        }
+      }
+    }, 500);
+  }
+
+  /**
+   * Save the current hack to storage
+   */
+  async saveCurrentHack() {
+    if (!this.currentHack) {
+      this.addMessage("❌ No hack to save.", "system");
+      return;
+    }
+
+    try {
+      // Save the hack using the hack service
+      await this.hackService.createHack(this.currentHostname, {
+        name: this.currentHack.name,
+        description: this.currentHack.description,
+        cssCode: this.currentHack.cssCode,
+        jsCode: this.currentHack.jsCode,
+      });
+
+      this.addMessage(
+        `✅ Saved "${this.currentHack.name}" successfully!`,
+        "system"
+      );
+
+      // Close modal if it exists and refresh popup
+      if (this.modal) {
+        this.closeModal();
+      }
+
+      // Trigger a refresh of the popup UI if available
+      if (window.popupUI) {
+        await window.popupUI.render();
+      }
+    } catch (error) {
+      console.error("Error saving hack:", error);
+      this.addMessage("❌ Error saving vibe. Please try again.", "system");
+    }
   }
 }

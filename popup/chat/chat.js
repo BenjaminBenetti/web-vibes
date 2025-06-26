@@ -11,7 +11,28 @@ class ChatPage {
     this.settingsRepository = new SettingsRepository();
     this.settingsService = new SettingsService(this.settingsRepository);
     this.aiService = new AIService(this.settingsService);
-    this.aiChatManager = new AIChatManager(this.aiService, this.hackService);
+
+    // Create agentic service with standard tools
+    if (typeof createAgenticService === "function") {
+      this.agenticService = createAgenticService(
+        this.aiService,
+        this.hackService
+      );
+    } else {
+      // Fallback manual creation if utility function not available
+      const tools = [
+        new SaveJSTool(this.hackService),
+        new ReadJSTool(this.hackService),
+        new SaveCSSTool(this.hackService),
+        new ReadCSSTool(this.hackService),
+      ];
+      this.agenticService = new AgenticService(this.aiService, tools);
+    }
+
+    this.aiChatManager = new AIChatManager(
+      this.agenticService,
+      this.hackService
+    );
     this.currentHostname = "";
 
     this.initializeElements();
@@ -91,6 +112,44 @@ class ChatPage {
   handleSettingsNavigation() {
     // Navigate to settings page
     window.location.href = "../settings/settings.html";
+  }
+
+  /**
+   * Set the current hack for editing
+   * @param {string} hackId - The ID of the hack to edit
+   */
+  async setCurrentHack(hackId) {
+    try {
+      // Find the hack
+      const { hacks } = await this.hackService.getHacksForCurrentSite();
+      const hack = hacks.find((h) => h.id === hackId);
+
+      if (!hack) {
+        console.error("Hack not found:", hackId);
+        return false;
+      }
+
+      // Set current hack in chat manager
+      this.aiChatManager.setCurrentHack(hack);
+      return true;
+    } catch (error) {
+      console.error("Error setting current hack:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Clear the current hack
+   */
+  clearCurrentHack() {
+    this.aiChatManager.clearCurrentHack();
+  }
+
+  /**
+   * Check if agentic service is ready
+   */
+  isReady() {
+    return this.aiChatManager.isReady();
   }
 }
 

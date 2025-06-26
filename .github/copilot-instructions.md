@@ -21,6 +21,7 @@ lib/[domain]/
 ```
 
 #### Model Layer Responsibilities:
+
 - Data structure definition
 - Validation methods (`isValid()`)
 - Serialization (`toJSON()`, `fromJSON()`)
@@ -28,12 +29,14 @@ lib/[domain]/
 - Static utility methods
 
 #### Repository Layer Responsibilities:
+
 - Chrome storage API interactions
 - Storage key management
 - Error handling for storage operations
 - Storage usage/quota information
 
 #### Service Layer Responsibilities:
+
 - Business logic operations
 - Data transformations
 - Combining model and repository operations
@@ -44,10 +47,18 @@ lib/[domain]/
 ```javascript
 // Model
 class Settings {
-  static getDefaults() { /* ... */ }
-  static fromJSON(data) { /* ... */ }
-  toJSON() { /* ... */ }
-  static isValid(data) { /* ... */ }
+  static getDefaults() {
+    /* ... */
+  }
+  static fromJSON(data) {
+    /* ... */
+  }
+  toJSON() {
+    /* ... */
+  }
+  static isValid(data) {
+    /* ... */
+  }
 }
 
 // Repository
@@ -55,8 +66,12 @@ class SettingsRepository {
   constructor() {
     this.storageKey = "webVibesSettings";
   }
-  async getSettings() { /* uses chrome.storage */ }
-  async saveSettings(settings) { /* uses chrome.storage */ }
+  async getSettings() {
+    /* uses chrome.storage */
+  }
+  async saveSettings(settings) {
+    /* uses chrome.storage */
+  }
 }
 
 // Service
@@ -64,8 +79,12 @@ class SettingsService {
   constructor(settingsRepository) {
     this.repository = settingsRepository;
   }
-  async getAllSettings() { return this.repository.getSettings(); }
-  async setTheme(themeKey) { /* business logic */ }
+  async getAllSettings() {
+    return this.repository.getSettings();
+  }
+  async setTheme(themeKey) {
+    /* business logic */
+  }
 }
 
 // Usage in apps
@@ -86,10 +105,12 @@ class App {
 ```html
 <head>
   <!-- Always import main.css first -->
-  <link rel="stylesheet" href="main.css">        <!-- For root pages -->
-  <link rel="stylesheet" href="../main.css">     <!-- For subdirectory pages -->
+  <link rel="stylesheet" href="main.css" />
+  <!-- For root pages -->
+  <link rel="stylesheet" href="../main.css" />
+  <!-- For subdirectory pages -->
   <!-- Then page-specific styles -->
-  <link rel="stylesheet" href="page-specific.css">
+  <link rel="stylesheet" href="page-specific.css" />
 </head>
 ```
 
@@ -97,13 +118,15 @@ class App {
 
 ```css
 /* External dependencies (Material Icons, fonts) */
-@import url('...');
+@import url("...");
 
 /* Base styles and CSS variables */
-@import url('popup.css');
+@import url("popup.css");
 
 /* Global utilities and Material Icons setup */
-.material-icons { /* proper rendering setup */ }
+.material-icons {
+  /* proper rendering setup */
+}
 ```
 
 ### 3. Theme System
@@ -116,8 +139,12 @@ class App {
   --theme-gradient: linear-gradient(...); /* default */
 }
 
-.theme-cosmic-purple { --theme-gradient: linear-gradient(...); }
-.theme-sunset-glow { --theme-gradient: linear-gradient(...); }
+.theme-cosmic-purple {
+  --theme-gradient: linear-gradient(...);
+}
+.theme-sunset-glow {
+  --theme-gradient: linear-gradient(...);
+}
 /* etc for all themes */
 
 /* In component styles */
@@ -188,6 +215,7 @@ lib/
 ### 2. Theme Implementation
 
 **Gradient themes MUST include:**
+
 - Name (display name)
 - Gradient (CSS linear-gradient)
 - Description (user-friendly description)
@@ -209,6 +237,7 @@ static getAvailableThemes() {
 ### 3. Settings UI Pattern
 
 **Settings pages MUST include:**
+
 - Back navigation with Material Icons
 - Section-based organization
 - Theme selector with preview tiles
@@ -220,6 +249,7 @@ static getAvailableThemes() {
 ### 1. Class Structure
 
 **ALL classes MUST include:**
+
 - Comprehensive JSDoc comments
 - Constructor parameter validation
 - Error handling with try/catch
@@ -263,6 +293,7 @@ async saveSettings(settings) {
 ### 1. Chrome Storage Keys
 
 **Use consistent naming convention:**
+
 - Settings: `"webVibesSettings"`
 - Hacks: `"webVibesHacks"`
 - Future domains: `"webVibес[Domain]"`
@@ -270,6 +301,7 @@ async saveSettings(settings) {
 ### 2. Manifest Permissions
 
 **Extension MUST have these permissions:**
+
 - `storage` - For Chrome storage API
 - `activeTab` - For current site detection
 - `scripting` - For injecting user styles/scripts
@@ -277,6 +309,7 @@ async saveSettings(settings) {
 ### 3. Content Security Policy
 
 **Follow Chrome extension CSP requirements:**
+
 - No inline scripts
 - External resources via HTTPS
 - Proper script loading order
@@ -291,7 +324,6 @@ async saveSettings(settings) {
 4. **Update HTML** with proper script loading
 5. **Add UI components** following Material Design
 6. **Update CSS** with theme support if needed
-7. **Test thoroughly** across different themes
 
 ### 2. Adding New Themes
 
@@ -326,14 +358,6 @@ async saveSettings(settings) {
 - Use CSS custom properties for dynamic theming
 - Lazy load non-critical components
 - Cache theme data in memory when possible
-
-### 3. Testing Strategy
-
-- Unit test each layer independently
-- Mock Chrome APIs for testing
-- Test theme switching across all pages
-- Validate storage operations
-- Test error handling scenarios
 
 ---
 

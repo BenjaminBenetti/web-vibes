@@ -115,6 +115,24 @@
     border-bottom-left-radius: 4px;
 }
 
+/* System messages styling */
+.chat-message.system {
+    justify-content: center;
+    margin: 8px 0;
+}
+
+.chat-message.system .message-content {
+    background: rgba(var(--theme-rgb), 0.1);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-style: italic;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(var(--theme-rgb), 0.2);
+    max-width: 90%;
+    text-align: center;
+}
+
 .chat-input-container {
     border-top: 1px solid var(--border-color);
     padding-top: 16px;

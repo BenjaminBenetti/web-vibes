@@ -24,27 +24,31 @@
 }
 
 .chat-content {
-    padding: 20px;
-    height: calc(100vh - 160px);
+    padding: 12px 20px 20px 20px;
+    height: calc(100vh - 130px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
 .ai-status {
-    display: flex;
+    display: inline-block;
     align-items: center;
-    gap: 8px;
-    padding: 12px;
-    background: var(--background-secondary);
-    border-radius: 8px;
-    margin-bottom: 16px;
-    font-size: 14px;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-size: 12px;
     flex-shrink: 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: fit-content;
 }
 
 .ai-status .material-icons {
-    color: var(--primary-color);
+    color: white;
+    font-size: 16px;
 }
 
 .chat-container {
@@ -520,4 +524,42 @@
     100% {
         left: 100%;
     }
+}
+
+/* Header layout adjustments for AI status */
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.header-top h1 {
+    flex: 1;
+    text-align: left;
+    margin: 0 0 0 12px;
+}
+
+/* Responsive AI status for smaller screens */
+@media (max-width: 480px) {
+    .ai-status {
+        padding: 3px 6px;
+        font-size: 11px;
+    }
+    
+    .ai-status .material-icons {
+        font-size: 14px;
+    }
+    
+    .header-top h1 {
+        font-size: 18px;
+    }
+}
+
+/* Truncate long AI status text */
+.ai-status #aiStatusText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
 }

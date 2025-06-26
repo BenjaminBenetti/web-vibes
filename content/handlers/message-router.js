@@ -24,6 +24,10 @@ function routeMessage(request, sender, sendResponse, appliedHacks) {
         handleRemoveHack(request, sender, sendResponse, appliedHacks);
         break;
 
+      case MESSAGE_TYPES.SEARCH_WEBSITE_HTML:
+        handleSearchWebsiteHTML(request, sender, sendResponse);
+        break;
+
       default:
         sendResponse({
           success: false,

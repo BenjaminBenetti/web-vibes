@@ -430,22 +430,27 @@ class AIChatManager {
 
       case "tool_execution":
         // Show a subtle indication that the AI is working
-        this.addMessage(
-          `🔧 ${this.getToolActionMessage(toolName)}...`,
-          "system"
-        );
+        const tool = this.agenticService.tools.get(toolName);
+        const actionMessage = tool
+          ? tool.getActionMessage()
+          : `Executing ${toolName}`;
+        this.addMessage(`🔧 ${actionMessage}...`, "system");
         break;
 
       case "tool_result":
+        const toolForResult = this.agenticService.tools.get(toolName);
         if (result.success) {
           // Show a completion message for successful tool execution
-          this.addMessage(
-            `✅ ${this.getToolCompletionMessage(toolName)}`,
-            "system"
-          );
+          const completionMessage = toolForResult
+            ? toolForResult.getCompletionMessage()
+            : `${toolName} completed`;
+          this.addMessage(`✅ ${completionMessage}`, "system");
         } else {
           // Show error for failed tool execution
-          this.addMessage(`❌ ${toolName} failed: ${result.error}`, "system");
+          const errorMessage = toolForResult
+            ? toolForResult.getErrorMessage(result.error)
+            : `${toolName} failed: ${result.error}`;
+          this.addMessage(`❌ ${errorMessage}`, "system");
         }
         break;
 
@@ -476,38 +481,6 @@ class AIChatManager {
     cleaned = cleaned.replace(/^\s+|\s+$/g, ""); // Trim start/end whitespace
 
     return cleaned;
-  }
-
-  /**
-   * Get user-friendly action message for tool execution
-   * @param {string} toolName - Name of the tool being executed
-   * @returns {string} User-friendly action message
-   */
-  getToolActionMessage(toolName) {
-    const actionMessages = {
-      save_css: "Updating CSS styles",
-      save_js: "Updating JavaScript code",
-      read_css: "Reading existing CSS",
-      read_js: "Reading existing JavaScript",
-    };
-
-    return actionMessages[toolName] || `Executing ${toolName}`;
-  }
-
-  /**
-   * Get user-friendly completion message for tool execution
-   * @param {string} toolName - Name of the tool that completed
-   * @returns {string} User-friendly completion message
-   */
-  getToolCompletionMessage(toolName) {
-    const completionMessages = {
-      save_css: "CSS styles updated",
-      save_js: "JavaScript code updated",
-      read_css: "CSS code analyzed",
-      read_js: "JavaScript code analyzed",
-    };
-
-    return completionMessages[toolName] || `${toolName} completed`;
   }
 
   /**

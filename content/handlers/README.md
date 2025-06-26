@@ -12,7 +12,6 @@ content/
     ├── message-router.js         # Routes messages to appropriate handlers
     ├── apply-hack-handler.js     # Handles hack application to pages
     ├── remove-hack-handler.js    # Handles hack removal from pages
-    ├── get-applied-hacks-handler.js  # Gets info about applied hacks
     └── get-page-info-handler.js  # Gets information about current page
 ```
 
@@ -28,11 +27,6 @@ content/
 - Removes specific hacks from the current webpage
 - Cleans up DOM elements created by hacks
 - Handles the `REMOVE_HACK` message type
-
-### get-applied-hacks-handler.js
-- Provides information about currently applied hacks
-- Returns hack metadata including application time and capabilities
-- Handles the `GET_APPLIED_HACKS` message type
 
 ### get-page-info-handler.js
 - Collects and returns information about the current webpage

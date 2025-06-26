@@ -24,10 +24,6 @@ function routeMessage(request, sender, sendResponse, appliedHacks) {
         handleRemoveHack(request, sender, sendResponse, appliedHacks);
         break;
 
-      case MESSAGE_TYPES.GET_APPLIED_HACKS:
-        handleGetAppliedHacks(request, sender, sendResponse, appliedHacks);
-        break;
-
       case MESSAGE_TYPES.GET_PAGE_INFO:
         handleGetPageInfo(request, sender, sendResponse);
         break;

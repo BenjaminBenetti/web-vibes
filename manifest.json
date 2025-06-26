@@ -29,7 +29,6 @@
         "content/handlers/shared-utils.js",
         "content/handlers/apply-hack-handler.js",
         "content/handlers/remove-hack-handler.js",
-        "content/handlers/get-applied-hacks-handler.js",
         "content/handlers/get-page-info-handler.js",
         "content/handlers/message-router.js",
         "content/content.js"

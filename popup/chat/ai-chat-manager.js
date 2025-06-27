@@ -8,6 +8,7 @@ class AIChatManager {
     this.hackService = hackService;
     this.currentHostname = "";
     this.currentHack = null; // Track current hack being edited
+    this.isEditingExistingHack = false; // Flag to differentiate between new and existing hacks
     this.initializeElements();
     this.setupEventListeners();
   }
@@ -257,6 +258,8 @@ class AIChatManager {
    */
   setCurrentHack(hack) {
     this.currentHack = hack;
+    // Mark that we are editing an existing stored hack
+    this.isEditingExistingHack = true;
     if (this.agenticService) {
       this.agenticService.setCurrentHack(hack);
 
@@ -490,6 +493,9 @@ class AIChatManager {
         `🎨 Ready to create a new vibe for ${this.currentHostname}! Tell me what you'd like to customize and I'll help you build it.`,
         "system"
       );
+
+      // Override the flag because this is a brand-new (unsaved) vibe
+      this.isEditingExistingHack = false;
     } catch (error) {
       console.error("Error creating new hack for editing:", error);
       this.addMessage(
@@ -555,18 +561,26 @@ class AIChatManager {
     }
 
     try {
-      // Save the hack using the hack service
-      await this.hackService.createHack(this.currentHostname, {
-        name: this.currentHack.name,
-        description: this.currentHack.description,
-        cssCode: this.currentHack.cssCode,
-        jsCode: this.currentHack.jsCode,
-      });
+      if (this.isEditingExistingHack) {
+        // Update existing hack
+        await this.hackService.updateHack(this.currentHostname, this.currentHack.id, {
+          name: this.currentHack.name,
+          description: this.currentHack.description,
+          cssCode: this.currentHack.cssCode,
+          jsCode: this.currentHack.jsCode,
+        });
+      } else {
+        // Create a new hack
+        await this.hackService.createHack(this.currentHostname, {
+          name: this.currentHack.name,
+          description: this.currentHack.description,
+          cssCode: this.currentHack.cssCode,
+          jsCode: this.currentHack.jsCode,
+        });
+      }
 
-      this.addMessage(
-        `✅ Saved "${this.currentHack.name}" successfully!`,
-        "system"
-      );
+      const actionMsg = this.isEditingExistingHack ? "updated" : "saved";
+      this.addMessage(`✅ ${this.currentHack.name} ${actionMsg} successfully!`, "system");
 
       // Close modal if it exists and refresh popup
       if (this.modal) {

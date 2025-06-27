@@ -151,17 +151,35 @@ class PopupUI {
     `;
     hackItem.appendChild(actions);
 
-    // Add event listener for edit button
-    actions.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.handleEditHack(hack);
-    });
+    // Disable only edit and settings buttons if hack is disabled
+    if (!hack.enabled) {
+      // Disable only edit and settings buttons
+      ['edit', 'settings'].forEach(action => {
+        const btn = actions.querySelector(`[data-action="${action}"]`);
+        if (btn) {
+          btn.disabled = true;
+          btn.tabIndex = -1;
+          btn.addEventListener('click', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          });
+        }
+      });
+      // Do NOT disable the toggle switch or delete button!
+    } else {
+      // Add event listener for edit button
+      actions.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.handleEditHack(hack);
+      });
 
-    // Add event listener for settings button
-    actions.querySelector('[data-action="settings"]').addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.handleVibeSettings(hack);
-    });
+      // Add event listener for settings button
+      actions.querySelector('[data-action="settings"]').addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.handleVibeSettings(hack);
+      });
+    }
 
     return hackItem;
   }

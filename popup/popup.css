@@ -428,3 +428,30 @@ input:checked+.toggle-slider:before {
     background: transparent !important;
     color: #888;
 }
+
+/* Generic: All action buttons in a disabled hack item look muted and have no background */
+.hack-item.disabled .hack-actions .btn {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #888 !important;
+    cursor: not-allowed;
+}
+
+/* Prevent hover effect for all action buttons in disabled hack items */
+.hack-item.disabled .hack-actions .btn:hover {
+    background: transparent !important;
+    color: #888 !important;
+}
+
+/* Exception: Delete button in disabled hack item should look normal and clickable */
+.hack-item.disabled .hack-actions .btn-danger {
+    background: #ef4444 !important;
+    color: white !important;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.hack-item.disabled .hack-actions .btn-danger:hover {
+    background: #dc2626 !important;
+    color: white !important;
+}

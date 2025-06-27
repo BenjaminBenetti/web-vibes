@@ -37,61 +37,29 @@ class WebVibesServiceWorker {
    * Set up Chrome extension event listeners
    */
   setupEventListeners() {
-    // Listen for tab updates to apply hacks automatically
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-      this.handleTabUpdate(tabId, changeInfo, tab);
-    });
-
-    // Listen for tab activation to apply hacks
-    chrome.tabs.onActivated.addListener((activeInfo) => {
-      this.handleTabActivated(activeInfo);
-    });
 
     // Listen for messages from content scripts or popup
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       this.handleMessage(request, sender, sendResponse);
     });
-  }
 
-  /**
-   * Handle tab updates to apply hacks automatically
-   * @param {number} tabId - The tab ID
-   * @param {Object} changeInfo - Information about the change
-   * @param {chrome.tabs.Tab} tab - The tab object
-   */
-  async handleTabUpdate(tabId, changeInfo, tab) {
-    // Only apply hacks when the page is fully loaded
-    if (changeInfo.status === 'complete' && tab.url) {
-      try {
-        const url = new URL(tab.url);
-        const hostname = url.hostname;
-
-        // Skip chrome://, chrome-extension://, and other special URLs
-        if (this.isValidUrlForHacks(tab.url)) {
-          await this.applyHacksForSite(tabId, hostname);
+    // Use webNavigation.onCompleted to apply hacks only on main frame navigations
+    chrome.webNavigation.onCompleted.addListener(async (details) => {
+      if (details.frameId === 0) {
+        try {
+          const tab = await chrome.tabs.get(details.tabId);
+          if (tab.url && this.isValidUrlForHacks(tab.url)) {
+            const url = new URL(tab.url);
+            const hostname = url.hostname;
+            await this.applyHacksForSite(details.tabId, hostname);
+          }
+        } catch (error) {
+          console.error("Error handling webNavigation.onCompleted:", error);
         }
-      } catch (error) {
-        console.error("Error handling tab update:", error);
       }
-    }
+    }, { url: [{ schemes: ['http', 'https'] }] });
   }
 
-  /**
-   * Handle tab activation to apply hacks
-   * @param {Object} activeInfo - Information about the activated tab
-   */
-  async handleTabActivated(activeInfo) {
-    try {
-      const tab = await chrome.tabs.get(activeInfo.tabId);
-      if (tab.url && this.isValidUrlForHacks(tab.url)) {
-        const url = new URL(tab.url);
-        const hostname = url.hostname;
-        await this.applyHacksForSite(activeInfo.tabId, hostname);
-      }
-    } catch (error) {
-      console.error("Error handling tab activation:", error);
-    }
-  }
 
   /**
    * Handle messages from content scripts or popup

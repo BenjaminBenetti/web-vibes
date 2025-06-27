@@ -17,6 +17,8 @@ class PopupUI {
     this.hacksListEl = document.getElementById("hacksList");
     this.emptyStateEl = document.getElementById("emptyState");
     this.addHackBtn = document.getElementById("addHackBtn");
+    this.savedHacksInfoEl = document.getElementById("savedHacksInfo");
+    this.applySavedHacksBtn = document.getElementById("applySavedHacksBtn");
   }
 
   async render() {
@@ -24,11 +26,109 @@ class PopupUI {
     this.currentHostname = hostname;
 
     this.updateCurrentSite(hostname);
+    this.renderSavedHacksInfo();
     this.renderHacksList(hacks);
   }
 
   updateCurrentSite(hostname) {
     this.currentSiteEl.textContent = hostname;
+  }
+
+  async renderSavedHacksInfo() {
+    try {
+      const summary = await this.hackService.getHacksSummaryForCurrentSite();
+
+      if (summary.total === 0) {
+        this.savedHacksInfoEl.innerHTML = `
+          <div class="saved-hacks-status no-hacks">
+            <span class="status-icon">📝</span>
+            <span class="status-text">No saved vibes for this site</span>
+          </div>
+        `;
+        this.applySavedHacksBtn.style.display = "none";
+        return;
+      }
+
+      if (summary.enabled === 0) {
+        this.savedHacksInfoEl.innerHTML = `
+          <div class="saved-hacks-status disabled-hacks">
+            <span class="status-icon">⏸️</span>
+            <span class="status-text">${summary.total} saved vibes (all disabled)</span>
+          </div>
+        `;
+        this.applySavedHacksBtn.style.display = "none";
+        return;
+      }
+
+      // Show enabled hacks and apply button
+      this.savedHacksInfoEl.innerHTML = `
+        <div class="saved-hacks-status enabled-hacks">
+          <span class="status-icon">✅</span>
+          <span class="status-text">${summary.enabled} of ${summary.total} vibes enabled</span>
+        </div>
+      `;
+      this.applySavedHacksBtn.style.display = "block";
+
+    } catch (error) {
+      console.error("Error rendering saved hacks info:", error);
+      this.savedHacksInfoEl.innerHTML = `
+        <div class="saved-hacks-status error">
+          <span class="status-icon">⚠️</span>
+          <span class="status-text">Error loading saved vibes</span>
+        </div>
+      `;
+      this.applySavedHacksBtn.style.display = "none";
+    }
+  }
+
+  async handleApplySavedHacks() {
+    try {
+      // Show loading state
+      this.applySavedHacksBtn.disabled = true;
+      this.applySavedHacksBtn.innerHTML = `
+        <span class="btn-icon">⏳</span>
+        Applying...
+      `;
+
+      const result = await this.hackService.applyHacksForCurrentSite();
+
+      if (result.success) {
+        // Show success message
+        this.showNotification(`✅ ${result.message}`, "success");
+
+        // Update the saved hacks info
+        await this.renderSavedHacksInfo();
+      } else {
+        this.showNotification(`❌ ${result.error}`, "error");
+      }
+    } catch (error) {
+      console.error("Error applying saved hacks:", error);
+      this.showNotification(`❌ Failed to apply saved vibes: ${error.message}`, "error");
+    } finally {
+      // Reset button state
+      this.applySavedHacksBtn.disabled = false;
+      this.applySavedHacksBtn.innerHTML = `
+        <span class="btn-icon">🎨</span>
+        Apply Saved Vibes
+      `;
+    }
+  }
+
+  showNotification(message, type = "info") {
+    // Create a simple notification element
+    const notification = document.createElement("div");
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+
+    // Add to the page
+    document.body.appendChild(notification);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 3000);
   }
 
   renderHacksList(hacks) {
@@ -61,9 +161,8 @@ class PopupUI {
       <p class="hack-description">${this.escapeHtml(hack.description)}</p>
       <div class="hack-actions">
         <label class="toggle-switch">
-          <input type="checkbox" ${
-            hack.enabled ? "checked" : ""
-          } data-action="toggle">
+          <input type="checkbox" ${hack.enabled ? "checked" : ""
+      } data-action="toggle">
           <span class="toggle-slider"></span>
         </label>
         <button class="btn btn-small btn-danger" data-action="delete">
@@ -133,6 +232,11 @@ class PopupEventHandler {
     // Add hack button
     this.ui.addHackBtn.addEventListener("click", () => {
       this.ui.handleAddHack();
+    });
+
+    // Apply saved hacks button
+    this.ui.applySavedHacksBtn.addEventListener("click", () => {
+      this.ui.handleApplySavedHacks();
     });
 
     // Settings button

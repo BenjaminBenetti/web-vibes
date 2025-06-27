@@ -79,6 +79,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -118,7 +119,6 @@
 /* System messages styling */
 .chat-message.system {
     justify-content: center;
-    margin: 8px 0;
 }
 
 .chat-message.system .message-content {
@@ -229,13 +229,16 @@
 
 /* Pulsing glow effect using theme gradient */
 @keyframes typingGlow {
-    0%, 100% {
-        box-shadow: 
+
+    0%,
+    100% {
+        box-shadow:
             0 0 10px rgba(255, 255, 255, 0.1),
             0 0 20px rgba(255, 255, 255, 0.05);
     }
+
     50% {
-        box-shadow: 
+        box-shadow:
             0 0 20px rgba(255, 255, 255, 0.2),
             0 0 40px rgba(255, 255, 255, 0.1),
             0 0 60px rgba(255, 255, 255, 0.05);
@@ -280,11 +283,11 @@
         background: conic-gradient(from 0deg, transparent, var(--primary-color), transparent);
         border: none;
     }
-    
+
     .gradient-spinner::before {
         display: none;
     }
-    
+
     .gradient-spinner::after {
         content: '';
         position: absolute;
@@ -301,24 +304,31 @@
     0% {
         transform: scale(1) rotate(0deg);
     }
+
     25% {
         transform: scale(1.05) rotate(90deg);
     }
+
     50% {
         transform: scale(1) rotate(180deg);
     }
+
     75% {
         transform: scale(1.05) rotate(270deg);
     }
+
     100% {
         transform: scale(1) rotate(360deg);
     }
 }
 
 @keyframes pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1) rotate(0deg);
     }
+
     50% {
         transform: scale(1.1) rotate(180deg);
     }
@@ -362,31 +372,31 @@
     .theme-cosmic-purple .gradient-spinner {
         background: conic-gradient(from 0deg, transparent, #8a2be2, #4b0082, transparent);
     }
-    
+
     .theme-sunset-glow .gradient-spinner {
         background: conic-gradient(from 0deg, transparent, #ff5e4d, #ff9a00, transparent);
     }
-    
+
     .theme-ocean-breeze .gradient-spinner {
         background: conic-gradient(from 0deg, transparent, #00bfff, #1e90ff, transparent);
     }
-    
+
     .theme-forest-fresh .gradient-spinner {
         background: conic-gradient(from 0deg, transparent, #22c55e, #16a34a, transparent);
     }
-    
+
     .theme-midnight-aurora .gradient-spinner {
         background: conic-gradient(from 0deg, transparent, #4f46e5, #8b5cf6, #a855f7, transparent);
     }
-    
+
     .theme-rose-gold .gradient-spinner {
         background: conic-gradient(from 0deg, transparent, #f43f5e, #fb7185, transparent);
     }
-    
+
     .theme-cyber-neon .gradient-spinner {
         background: conic-gradient(from 0deg, transparent, #06b6d4, #22d3ee, transparent);
     }
-    
+
     .theme-volcanic-ember .gradient-spinner {
         background: conic-gradient(from 0deg, transparent, #ef4444, #f97316, transparent);
     }
@@ -422,10 +432,14 @@
 }
 
 @keyframes typingPulse {
-    0%, 80%, 100% {
+
+    0%,
+    80%,
+    100% {
         opacity: 0.3;
         transform: scale(1);
     }
+
     40% {
         opacity: 1;
         transform: scale(1.2);
@@ -495,9 +509,12 @@
 }
 
 @keyframes inputPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         border-color: var(--border-color);
     }
+
     50% {
         border-color: var(--primary-color);
         box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
@@ -505,9 +522,12 @@
 }
 
 @keyframes buttonPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.05);
     }
@@ -526,12 +546,10 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.1),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent);
     animation: shimmer 2s infinite;
 }
 
@@ -539,6 +557,7 @@
     0% {
         left: -100%;
     }
+
     100% {
         left: 100%;
     }
@@ -564,11 +583,11 @@
         padding: 3px 6px;
         font-size: 11px;
     }
-    
+
     .ai-status .material-icons {
         font-size: 14px;
     }
-    
+
     .header-top h1 {
         font-size: 18px;
     }

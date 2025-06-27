@@ -199,6 +199,11 @@ class PopupUI {
         await this.hackService.updateHack(this.currentHostname, hackId, updateData);
         const { hacks } = await this.hackService.getHacksForCurrentSite();
         this.renderHacksList(hacks);
+        // Reload the current website to apply changes
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab && tab.id) {
+          chrome.tabs.reload(tab.id);
+        }
       }
     );
   }

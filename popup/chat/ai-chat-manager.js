@@ -593,8 +593,10 @@ class AIChatManager {
       const saveButton = document.createElement("button");
       saveButton.className = "btn btn-primary";
       saveButton.innerHTML = `
-        <span class="material-icons">save</span>
-        Save this vibe
+        <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+          <span class="material-icons">save</span>
+          <span>Save this vibe</span>
+        </div>
       `;
 
       saveButton.addEventListener("click", () => {

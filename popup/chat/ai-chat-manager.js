@@ -151,6 +151,9 @@ class AIChatManager {
     const message = this.chatInput.value.trim();
     if (!message) return;
 
+    // Always clear the input immediately after sending
+    this.chatInput.value = "";
+
     const inputContainer = document.querySelector(".chat-input-container");
     const inputWrapper = document.querySelector(".input-wrapper");
     const loadingOverlay = document.getElementById("chatLoadingOverlay");
@@ -167,7 +170,6 @@ class AIChatManager {
         overlaySpinnerText.textContent = this.getRandomThinkingMessage();
       }
       // Hide input value and placeholder
-      this.chatInput.value = "";
       this.chatInput.placeholder = "";
       // Start interval to update spinner text
       overlayTextInterval = setInterval(() => {
@@ -199,15 +201,10 @@ class AIChatManager {
         inputWrapper.classList.remove("loading");
         loadingOverlay.style.display = "none";
       }
-      if (overlayTextInterval) {
-        clearInterval(overlayTextInterval);
-      }
-      // Restore input value and placeholder
-      this.chatInput.value = originalInputValue;
-      this.chatInput.placeholder = originalPlaceholder;
-      if (this.sendButton) {
-        this.sendButton.disabled = false;
-      }
+      // Also clear input again for robustness
+      if (this.chatInput) this.chatInput.value = "";
+      if (this.chatInput) this.chatInput.placeholder = originalPlaceholder;
+      if (overlayTextInterval) clearInterval(overlayTextInterval);
     }
   }
 

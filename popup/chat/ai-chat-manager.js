@@ -481,6 +481,11 @@ class AIChatManager {
       // Set this as the current hack for the agentic service
       this.setCurrentHack(newHack);
 
+      // Reset any previous conversation so we start fresh for this vibe
+      if (this.agenticService) {
+        this.agenticService.clearConversationHistory();
+      }
+
       // Add a welcome message
       this.addMessage(
         `🎨 Ready to create a new vibe for ${this.currentHostname}! Tell me what you'd like to customize and I'll help you build it.`,

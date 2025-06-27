@@ -47,11 +47,6 @@ class VibeSettingsModal {
               <label for="vibeName">Vibe Name</label>
               <input type="text" id="vibeName" class="form-input" placeholder="Enter vibe name">
             </div>
-            
-            <div class="form-group">
-              <label for="vibeDescription">Description</label>
-              <textarea id="vibeDescription" class="form-textarea" placeholder="Describe what this vibe does"></textarea>
-            </div>
 
             <div class="form-group">
               <label for="cssCode">CSS Code</label>
@@ -64,10 +59,10 @@ class VibeSettingsModal {
             </div>
 
             <div class="form-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="vibeEnabled">
-                <span class="checkbox-custom"></span>
-                Enable this vibe
+              <label class="toggle-switch-label" for="vibeEnabledToggle">Enable this vibe</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="vibeEnabledToggle">
+                <span class="toggle-slider"></span>
               </label>
             </div>
           </div>
@@ -156,17 +151,15 @@ class VibeSettingsModal {
   populateForm(hack) {
     const title = this.modalElement.querySelector('#modalTitle');
     const nameInput = this.modalElement.querySelector('#vibeName');
-    const descInput = this.modalElement.querySelector('#vibeDescription');
     const cssInput = this.modalElement.querySelector('#cssCode');
     const jsInput = this.modalElement.querySelector('#jsCode');
-    const enabledCheckbox = this.modalElement.querySelector('#vibeEnabled');
+    const enabledToggle = this.modalElement.querySelector('#vibeEnabledToggle');
 
     title.textContent = `Edit: ${hack.name}`;
     nameInput.value = hack.name || '';
-    descInput.value = hack.description || '';
     cssInput.value = hack.cssCode || '';
     jsInput.value = hack.jsCode || '';
-    enabledCheckbox.checked = hack.enabled !== false;
+    enabledToggle.checked = hack.enabled !== false;
   }
 
   /**
@@ -180,10 +173,9 @@ class VibeSettingsModal {
 
       // Get form values
       const nameInput = this.modalElement.querySelector('#vibeName');
-      const descInput = this.modalElement.querySelector('#vibeDescription');
       const cssInput = this.modalElement.querySelector('#cssCode');
       const jsInput = this.modalElement.querySelector('#jsCode');
-      const enabledCheckbox = this.modalElement.querySelector('#vibeEnabled');
+      const enabledToggle = this.modalElement.querySelector('#vibeEnabledToggle');
 
       // Validate inputs
       const name = nameInput.value.trim();
@@ -199,10 +191,9 @@ class VibeSettingsModal {
       // Prepare update data
       const updateData = {
         name: name,
-        description: descInput.value.trim(),
         cssCode: cssInput.value,
         jsCode: jsInput.value,
-        enabled: enabledCheckbox.checked
+        enabled: enabledToggle.checked
       };
 
       // Call save callback if provided

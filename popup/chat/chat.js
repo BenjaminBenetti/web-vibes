@@ -71,6 +71,16 @@ class ChatPage {
       await this.setCurrentHack(hackId);
     }
 
+    // Update chat page title based on mode
+    const titleEl = document.getElementById("chatPageTitle");
+    if (titleEl) {
+      if (hackId && this.aiChatManager.isEditingExistingHack) {
+        titleEl.textContent = "Edit Vibe with AI";
+      } else {
+        titleEl.textContent = "Create New Vibe with AI";
+      }
+    }
+
     this.aiChatManager.initializeChat();
   }
 

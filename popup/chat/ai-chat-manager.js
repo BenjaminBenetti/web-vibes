@@ -151,33 +151,38 @@ class AIChatManager {
     const message = this.chatInput.value.trim();
     if (!message) return;
 
-    // Store original placeholder
-    const originalPlaceholder =
-      this.chatInput.placeholder || "Type a message...";
-
-    // Clear input and disable send button
-    this.chatInput.value = "";
-    this.chatInput.placeholder = "AI is thinking...";
-    if (this.sendButton) {
-      this.sendButton.disabled = true;
-    }
-
-    // Add loading state to input container
     const inputContainer = document.querySelector(".chat-input-container");
-    if (inputContainer) {
-      inputContainer.classList.add("loading");
+    const inputWrapper = document.querySelector(".input-wrapper");
+    const loadingOverlay = document.getElementById("chatLoadingOverlay");
+    const overlaySpinnerText = loadingOverlay?.querySelector(".spinner-text");
+    let overlayTextInterval;
+    // Store and clear input value/placeholder
+    let originalInputValue = this.chatInput.value;
+    let originalPlaceholder = this.chatInput.placeholder || "Type a message...";
+    if (inputWrapper && loadingOverlay) {
+      inputWrapper.classList.add("loading");
+      loadingOverlay.style.display = "flex";
+      // Set initial random message
+      if (overlaySpinnerText) {
+        overlaySpinnerText.textContent = this.getRandomThinkingMessage();
+      }
+      // Hide input value and placeholder
+      this.chatInput.value = "";
+      this.chatInput.placeholder = "";
+      // Start interval to update spinner text
+      overlayTextInterval = setInterval(() => {
+        if (overlaySpinnerText) {
+          overlaySpinnerText.style.opacity = "0.5";
+          setTimeout(() => {
+            overlaySpinnerText.textContent = this.getRandomThinkingMessage();
+            overlaySpinnerText.style.opacity = "1";
+          }, 200);
+        }
+      }, 10000);
     }
 
     // Add user message to chat
     this.addMessage(message, "user");
-
-    // Show enhanced typing indicator
-    const typingIndicator = this.showTypingIndicator();
-
-    // Update spinner text periodically for engaging feedback
-    const textUpdateInterval = setInterval(() => {
-      this.updateSpinnerText(typingIndicator);
-    }, 10000); // Update every 10 seconds
 
     try {
       // Use agentic service for all AI interactions
@@ -189,16 +194,16 @@ class AIChatManager {
         "assistant"
       );
     } finally {
-      // Clear the text update interval
-      clearInterval(textUpdateInterval);
-
-      // Remove typing indicator
-      this.removeTypingIndicator(typingIndicator);
-
       // Remove loading state and re-enable send button
-      if (inputContainer) {
-        inputContainer.classList.remove("loading");
+      if (inputWrapper && loadingOverlay) {
+        inputWrapper.classList.remove("loading");
+        loadingOverlay.style.display = "none";
       }
+      if (overlayTextInterval) {
+        clearInterval(overlayTextInterval);
+      }
+      // Restore input value and placeholder
+      this.chatInput.value = originalInputValue;
       this.chatInput.placeholder = originalPlaceholder;
       if (this.sendButton) {
         this.sendButton.disabled = false;
@@ -245,89 +250,6 @@ class AIChatManager {
 
     // Scroll to bottom
     this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-  }
-
-  showTypingIndicator() {
-    if (!this.chatMessages) return null;
-
-    const typingDiv = document.createElement("div");
-    typingDiv.className = "chat-message assistant";
-    typingDiv.innerHTML = `
-      <div class="message-content typing-indicator">
-        <div class="typing-spinner">
-          <div class="gradient-spinner"></div>
-          <span class="spinner-text">${this.getRandomThinkingMessage()}</span>
-        </div>
-      </div>
-    `;
-
-    // Add with fade-in animation
-    typingDiv.style.opacity = "0";
-    typingDiv.style.transform = "translateY(10px)";
-    this.chatMessages.appendChild(typingDiv);
-
-    // Trigger animation
-    requestAnimationFrame(() => {
-      typingDiv.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-      typingDiv.style.opacity = "1";
-      typingDiv.style.transform = "translateY(0)";
-    });
-
-    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-
-    return typingDiv;
-  }
-
-  removeTypingIndicator(indicator) {
-    if (indicator && indicator.parentNode) {
-      // Smooth fade-out animation
-      indicator.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-      indicator.style.opacity = "0";
-      indicator.style.transform = "translateY(-10px)";
-
-      // Remove after animation completes
-      setTimeout(() => {
-        if (indicator.parentNode) {
-          indicator.parentNode.removeChild(indicator);
-        }
-      }, 300);
-    }
-  }
-
-  /**
-   * Update the spinner text periodically during long responses
-   */
-  updateSpinnerText(indicator) {
-    if (!indicator) return;
-
-    const spinnerText = indicator.querySelector(".spinner-text");
-    if (spinnerText) {
-      const newMessage = this.getRandomThinkingMessage();
-
-      // Fade out, change text, fade in
-      spinnerText.style.opacity = "0.5";
-      setTimeout(() => {
-        spinnerText.textContent = newMessage;
-        spinnerText.style.opacity = "1";
-      }, 200);
-    }
-  }
-
-  /**
-   * Get a random thinking message for the spinner
-   */
-  getRandomThinkingMessage() {
-    const messages = [
-      "AI is thinking...",
-      "Crafting your vibe...",
-      "Analyzing your request...",
-      "Generating ideas...",
-      "Working on it...",
-      "Brainstorming solutions...",
-      "Processing your vision...",
-      "Creating something awesome...",
-    ];
-    return messages[Math.floor(Math.random() * messages.length)];
   }
 
   /**

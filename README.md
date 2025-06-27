@@ -5,6 +5,9 @@ your hacks for later use. Don't like the way a website looks? Change it! Want to
 add some functionality? Add it! Want to remove some functionality? Remove it!
 Wild, and crazy, and fun!
 
+<img src="./doc/extension-screenshot.png" alt="Extension Screenshot" width="200" height="auto">
+
+
 ## Features 
 - Vibe modify any website using the browser extension on the fly. When you feel 
   happy with your changes, you can save them for later use. All your saved 
@@ -12,31 +15,6 @@ Wild, and crazy, and fun!
 - Manage your list of saved vibes. Disable and enable them at will. Allowing full
   control over your vibe hacks.
 - Works with any AI agent, just bring your API key
-
-## Project Structure
-
-```
-web-vibes/
-├── manifest.json              # Chrome extension manifest
-├── popup/                     # Extension popup interface
-│   ├── popup.html
-│   ├── popup.css
-│   └── popup.js              # UI and event handling only
-├── content/                   # Content scripts
-│   └── content.js
-├── lib/                      # Core business logic (NEW!)
-│   ├── index.js              # Library factory functions
-│   ├── README.md             # Library documentation
-│   └── hack/                 # Hack-related modules
-│       ├── model/
-│       │   └── hack.js       # Data model
-│       ├── repo/
-│       │   └── hack-repo.js  # Storage repository
-│       └── service/
-│           └── hack-service.js # Business logic
-├── icons/                    # Extension icons
-└── test.html                # Test page for development
-```
 
 ## Architecture
 

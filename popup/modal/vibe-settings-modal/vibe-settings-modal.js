@@ -60,7 +60,10 @@ class VibeSettingsModal {
 
             <div class="form-group">
               <label for="applyDelay">Apply Delay (ms)</label>
-              <input type="number" id="applyDelay" class="form-input" min="0" step="100" placeholder="0">
+              <div class="slider-container">
+                <input type="range" id="applyDelay" class="form-slider" min="0" max="10000" step="100" value="0">
+                <div class="slider-value" id="applyDelayValue">0 ms</div>
+              </div>
             </div>
 
             <div class="form-group">
@@ -107,6 +110,17 @@ class VibeSettingsModal {
         this.closeModal();
       }
     });
+
+    // Slider event handling
+    const delaySlider = this.modalElement.querySelector('#applyDelay');
+    const delayValue = this.modalElement.querySelector('#applyDelayValue');
+
+    if (delaySlider && delayValue) {
+      delaySlider.addEventListener('input', (e) => {
+        const value = e.target.value;
+        delayValue.textContent = `${value} ms`;
+      });
+    }
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
@@ -158,14 +172,19 @@ class VibeSettingsModal {
     const nameInput = this.modalElement.querySelector('#vibeName');
     const cssInput = this.modalElement.querySelector('#cssCode');
     const jsInput = this.modalElement.querySelector('#jsCode');
-    const delayInput = this.modalElement.querySelector('#applyDelay');
+    const delaySlider = this.modalElement.querySelector('#applyDelay');
+    const delayValue = this.modalElement.querySelector('#applyDelayValue');
     const enabledToggle = this.modalElement.querySelector('#vibeEnabledToggle');
 
     title.textContent = `Edit: ${hack.name}`;
     nameInput.value = hack.name || '';
     cssInput.value = hack.cssCode || '';
     jsInput.value = hack.jsCode || '';
-    delayInput.value = (hack.applyDelay != null ? hack.applyDelay : 0);
+
+    const delay = (hack.applyDelay != null ? hack.applyDelay : 0);
+    delaySlider.value = delay;
+    delayValue.textContent = `${delay} ms`;
+
     enabledToggle.checked = hack.enabled !== false;
   }
 
@@ -182,7 +201,7 @@ class VibeSettingsModal {
       const nameInput = this.modalElement.querySelector('#vibeName');
       const cssInput = this.modalElement.querySelector('#cssCode');
       const jsInput = this.modalElement.querySelector('#jsCode');
-      const delayInput = this.modalElement.querySelector('#applyDelay');
+      const delaySlider = this.modalElement.querySelector('#applyDelay');
       const enabledToggle = this.modalElement.querySelector('#vibeEnabledToggle');
 
       // Validate inputs
@@ -194,10 +213,10 @@ class VibeSettingsModal {
       }
 
       // Validate apply delay
-      const delayValue = parseInt(delayInput.value, 10);
+      const delayValue = parseInt(delaySlider.value, 10);
       if (isNaN(delayValue) || delayValue < 0) {
         this.showError('Apply delay must be a non-negative number');
-        delayInput.focus();
+        delaySlider.focus();
         return;
       }
 

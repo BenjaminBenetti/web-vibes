@@ -51,25 +51,83 @@ class PopupUI {
     hackItem.className = `hack-item ${hack.enabled ? "" : "disabled"}`;
     hackItem.dataset.hackId = hack.id;
 
-    hackItem.innerHTML = `
-      <div class="hack-header">
-        <h4 class="hack-name">${this.escapeHtml(hack.name)}</h4>
-        <span class="hack-status ${hack.enabled ? "enabled" : "disabled"}">
-          ${hack.enabled ? "Enabled" : "Disabled"}
-        </span>
-      </div>
-      <p class="hack-description">${this.escapeHtml(hack.description)}</p>
-      <div class="hack-actions">
-        <label class="toggle-switch">
-          <input type="checkbox" ${hack.enabled ? "checked" : ""
-      } data-action="toggle">
-          <span class="toggle-slider"></span>
-        </label>
-        <button class="btn btn-small btn-danger" data-action="delete">
-          🗑️ Delete
-        </button>
-      </div>
+    // Create the hack header
+    const hackHeader = document.createElement("div");
+    hackHeader.className = "hack-header";
+
+    // Hack name (inline editable)
+    const hackName = document.createElement("h4");
+    hackName.className = "hack-name";
+    hackName.textContent = this.escapeHtml(hack.name);
+    hackName.tabIndex = 0;
+    hackName.style.cursor = "pointer";
+    hackName.title = "Click to edit name";
+
+    // Inline edit handler
+    hackName.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // Prevent multiple inputs
+      if (hackHeader.querySelector(".hack-name-edit")) return;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = hack.name;
+      input.className = "hack-name hack-name-edit";
+      input.style.width = Math.max(120, hackName.offsetWidth) + "px";
+      hackName.replaceWith(input);
+      input.focus();
+      input.select();
+
+      // Save on blur or Enter
+      const save = async () => {
+        const newName = input.value.trim();
+        if (newName && newName !== hack.name) {
+          await this.hackService.updateHack(this.currentHostname, hack.id, { name: newName });
+        }
+        // Re-render the list
+        const { hacks } = await this.hackService.getHacksForCurrentSite();
+        this.renderHacksList(hacks);
+      };
+      input.addEventListener("blur", save);
+      input.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") {
+          input.blur();
+        } else if (ev.key === "Escape") {
+          // Cancel edit
+          const { hacks } = this.hackService.getHacksForCurrentSite();
+          this.renderHacksList(hacks);
+        }
+      });
+    });
+
+    hackHeader.appendChild(hackName);
+
+    // Status
+    const status = document.createElement("span");
+    status.className = `hack-status ${hack.enabled ? "enabled" : "disabled"}`;
+    status.textContent = hack.enabled ? "Enabled" : "Disabled";
+    hackHeader.appendChild(status);
+
+    hackItem.appendChild(hackHeader);
+
+    // Description
+    const desc = document.createElement("p");
+    desc.className = "hack-description";
+    desc.textContent = hack.description;
+    hackItem.appendChild(desc);
+
+    // Actions
+    const actions = document.createElement("div");
+    actions.className = "hack-actions";
+    actions.innerHTML = `
+      <label class="toggle-switch">
+        <input type="checkbox" ${hack.enabled ? "checked" : ""} data-action="toggle">
+        <span class="toggle-slider"></span>
+      </label>
+      <button class="btn btn-small btn-danger" data-action="delete">
+        🗑️ Delete
+      </button>
     `;
+    hackItem.appendChild(actions);
 
     return hackItem;
   }
@@ -96,6 +154,11 @@ class PopupUI {
       hackId
     );
     this.renderHacksList(hacks);
+    // Reload the current website
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab && tab.id) {
+      chrome.tabs.reload(tab.id);
+    }
   }
 
   async handleHackDelete(hackId) {

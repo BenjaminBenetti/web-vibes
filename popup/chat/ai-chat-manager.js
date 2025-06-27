@@ -532,6 +532,10 @@ class AIChatManager {
         const messageContent = lastMessage.querySelector(".message-content");
         if (messageContent) {
           messageContent.appendChild(saveButton);
+          // Scroll to bottom so the button is visible
+          if (this.chatMessages) {
+            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+          }
         }
       }
     }, 500);

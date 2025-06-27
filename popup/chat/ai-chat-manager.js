@@ -100,8 +100,10 @@ class AIChatManager {
         this.currentHostname = "unknown";
       }
 
-      // Create a new temporary hack for the AI to work with
-      await this.createNewHackForEditing();
+      // Create a new temporary hack for the AI to work with if none selected
+      if (!this.currentHack) {
+        await this.createNewHackForEditing();
+      }
     } catch (error) {
       console.error("Error initializing AI chat:", error);
       if (this.aiStatusText) {

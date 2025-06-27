@@ -139,6 +139,9 @@ class PopupUI {
         <input type="checkbox" ${hack.enabled ? "checked" : ""} data-action="toggle">
         <span class="toggle-slider"></span>
       </label>
+      <button class="btn btn-small btn-secondary" data-action="edit" title="Edit in Chat">
+        <span class="material-icons">edit</span>
+      </button>
       <button class="btn btn-small btn-secondary" data-action="settings" title="Vibe Settings">
         <span class="material-icons">settings</span>
       </button>
@@ -147,6 +150,12 @@ class PopupUI {
       </button>
     `;
     hackItem.appendChild(actions);
+
+    // Add event listener for edit button
+    actions.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.handleEditHack(hack);
+    });
 
     // Add event listener for settings button
     actions.querySelector('[data-action="settings"]').addEventListener('click', (e) => {
@@ -221,6 +230,15 @@ class PopupUI {
         }
       }
     );
+  }
+
+  /**
+   * Navigate to chat page for editing the selected vibe
+   * @param {Hack} hack - Hack object to edit
+   */
+  handleEditHack(hack) {
+    // Navigate to chat page with hackId query parameter
+    window.location.href = `chat/chat.html?hackId=${encodeURIComponent(hack.id)}`;
   }
 }
 

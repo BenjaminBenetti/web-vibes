@@ -63,6 +63,14 @@ class ChatPage {
     await this.loadTheme();
     await this.initializeAI();
     await this.loadCurrentSite();
+
+    // Check for hackId in query parameters to edit existing vibe
+    const urlParams = new URLSearchParams(window.location.search);
+    const hackId = urlParams.get("hackId");
+    if (hackId) {
+      await this.setCurrentHack(hackId);
+    }
+
     this.aiChatManager.initializeChat();
   }
 

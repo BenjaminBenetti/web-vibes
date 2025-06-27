@@ -9,6 +9,7 @@ class PopupUI {
   constructor(hackService) {
     this.hackService = hackService;
     this.currentHostname = "";
+    this.vibeSettingsModal = new window.VibeSettingsModal();
     this.initializeElements();
   }
 
@@ -123,11 +124,20 @@ class PopupUI {
         <input type="checkbox" ${hack.enabled ? "checked" : ""} data-action="toggle">
         <span class="toggle-slider"></span>
       </label>
+      <button class="btn btn-small btn-secondary" data-action="settings" title="Vibe Settings">
+        <span class="material-icons">settings</span>
+      </button>
       <button class="btn btn-small btn-danger" data-action="delete">
         🗑️ Delete
       </button>
     `;
     hackItem.appendChild(actions);
+
+    // Add event listener for settings button
+    actions.querySelector('[data-action="settings"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.handleVibeSettings(hack);
+    });
 
     return hackItem;
   }
@@ -179,6 +189,18 @@ class PopupUI {
   handleSettingsNavigation() {
     // Navigate to settings page
     window.location.href = "settings/settings.html";
+  }
+
+  async handleVibeSettings(hack) {
+    this.vibeSettingsModal.openModal(
+      hack,
+      this.currentHostname,
+      async (hackId, updateData) => {
+        await this.hackService.updateHack(this.currentHostname, hackId, updateData);
+        const { hacks } = await this.hackService.getHacksForCurrentSite();
+        this.renderHacksList(hacks);
+      }
+    );
   }
 }
 

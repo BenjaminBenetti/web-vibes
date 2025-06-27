@@ -59,6 +59,11 @@ class VibeSettingsModal {
             </div>
 
             <div class="form-group">
+              <label for="applyDelay">Apply Delay (ms)</label>
+              <input type="number" id="applyDelay" class="form-input" min="0" step="100" placeholder="0">
+            </div>
+
+            <div class="form-group">
               <label class="toggle-switch-label" for="vibeEnabledToggle">Enable this vibe</label>
               <label class="toggle-switch">
                 <input type="checkbox" id="vibeEnabledToggle">
@@ -153,12 +158,14 @@ class VibeSettingsModal {
     const nameInput = this.modalElement.querySelector('#vibeName');
     const cssInput = this.modalElement.querySelector('#cssCode');
     const jsInput = this.modalElement.querySelector('#jsCode');
+    const delayInput = this.modalElement.querySelector('#applyDelay');
     const enabledToggle = this.modalElement.querySelector('#vibeEnabledToggle');
 
     title.textContent = `Edit: ${hack.name}`;
     nameInput.value = hack.name || '';
     cssInput.value = hack.cssCode || '';
     jsInput.value = hack.jsCode || '';
+    delayInput.value = (hack.applyDelay != null ? hack.applyDelay : 0);
     enabledToggle.checked = hack.enabled !== false;
   }
 
@@ -175,6 +182,7 @@ class VibeSettingsModal {
       const nameInput = this.modalElement.querySelector('#vibeName');
       const cssInput = this.modalElement.querySelector('#cssCode');
       const jsInput = this.modalElement.querySelector('#jsCode');
+      const delayInput = this.modalElement.querySelector('#applyDelay');
       const enabledToggle = this.modalElement.querySelector('#vibeEnabledToggle');
 
       // Validate inputs
@@ -182,6 +190,14 @@ class VibeSettingsModal {
       if (!name) {
         this.showError('Vibe name is required');
         nameInput.focus();
+        return;
+      }
+
+      // Validate apply delay
+      const delayValue = parseInt(delayInput.value, 10);
+      if (isNaN(delayValue) || delayValue < 0) {
+        this.showError('Apply delay must be a non-negative number');
+        delayInput.focus();
         return;
       }
 
@@ -193,7 +209,8 @@ class VibeSettingsModal {
         name: name,
         cssCode: cssInput.value,
         jsCode: jsInput.value,
-        enabled: enabledToggle.checked
+        enabled: enabledToggle.checked,
+        applyDelay: delayValue
       };
 
       // Call save callback if provided

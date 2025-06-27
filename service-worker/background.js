@@ -174,17 +174,19 @@ class WebVibesServiceWorker {
 
       console.log(`Applying ${hacks.length} hacks for ${hostname}`);
 
-      // Apply each hack to the tab
-      const results = [];
-      for (const hack of hacks) {
-        try {
-          const result = await this.applyHackToTab(tabId, hack);
-          results.push(result);
-        } catch (error) {
-          console.error(`Error applying hack ${hack.id}:`, error);
-          results.push({ success: false, hackId: hack.id, error: error.message });
+      // Apply each hack to the tab in parallel so delays do not compound
+      const rawResults = await Promise.allSettled(
+        hacks.map((hack) => this.applyHackToTab(tabId, hack))
+      );
+
+      const results = rawResults.map((res, idx) => {
+        if (res.status === 'fulfilled') {
+          return res.value;
         }
-      }
+        const hack = hacks[idx];
+        console.error(`Error applying hack ${hack.id}:`, res.reason);
+        return { success: false, hackId: hack.id, error: res.reason?.message || String(res.reason) };
+      });
 
       const successful = results.filter(r => r.success).length;
       console.log(`Successfully applied ${successful}/${hacks.length} hacks for ${hostname}`);
@@ -209,6 +211,12 @@ class WebVibesServiceWorker {
    */
   async applyHackToTab(tabId, hack) {
     try {
+      // Respect per-hack apply delay (in milliseconds)
+      const delay = typeof hack.applyDelay === 'number' && hack.applyDelay > 0 ? hack.applyDelay : 0;
+      if (delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
       // Prepare hack data for content script
       const hackData = {
         id: hack.id,

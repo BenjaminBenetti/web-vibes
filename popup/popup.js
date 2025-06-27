@@ -102,11 +102,26 @@ class PopupUI {
 
     hackHeader.appendChild(hackName);
 
+    // Status container (right side)
+    const statusContainer = document.createElement("div");
+    statusContainer.className = "hack-status-container";
+
     // Status
     const status = document.createElement("span");
     status.className = `hack-status ${hack.enabled ? "enabled" : "disabled"}`;
     status.textContent = hack.enabled ? "Enabled" : "Disabled";
-    hackHeader.appendChild(status);
+    statusContainer.appendChild(status);
+
+    // Add clock icon next to status if applyDelay is set
+    if (hack.applyDelay && hack.applyDelay > 0) {
+      const clockIcon = document.createElement("span");
+      clockIcon.className = "material-icons delay-icon";
+      clockIcon.textContent = "schedule";
+      clockIcon.title = `Apply delay: ${hack.applyDelay}ms`;
+      statusContainer.appendChild(clockIcon);
+    }
+
+    hackHeader.appendChild(statusContainer);
 
     hackItem.appendChild(hackHeader);
 

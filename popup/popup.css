@@ -306,6 +306,19 @@ body {
     color: #991b1b;
 }
 
+.hack-status-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.material-icons.delay-icon {
+    font-size: 16px;
+    cursor: help;
+    opacity: 0.8;
+    vertical-align: middle;
+}
+
 .hack-description {
     font-size: 12px;
     color: var(--text-secondary);

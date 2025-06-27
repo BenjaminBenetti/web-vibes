@@ -317,6 +317,7 @@ body {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
+    align-items: center;
 }
 
 .empty-state {
@@ -402,4 +403,15 @@ input:checked+.toggle-slider:before {
     background: var(--background-main);
     outline: none;
     box-sizing: border-box;
+}
+
+.hack-item.disabled .btn[data-action="settings"] {
+    background: transparent !important;
+    box-shadow: none;
+    color: #888;
+}
+
+.hack-item.disabled .btn[data-action="settings"]:hover {
+    background: transparent !important;
+    color: #888;
 }

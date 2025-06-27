@@ -1,6 +1,6 @@
 /**
  * Handler for applying hacks to the current webpage
- * Manages CSS and JavaScript injection into the page
+ * Manages CSS injection into the page (JavaScript is handled by ApplyHackTool)
  */
 
 /**
@@ -18,7 +18,7 @@ function applyHack(hackData, appliedHacks) {
 
     let appliedElements = [];
 
-    // Apply CSS if present
+    // Apply CSS if present (JavaScript is handled by ApplyHackTool)
     if (cssCode && cssCode.trim()) {
       const styleElement = document.createElement("style");
       styleElement.id = `web-vibes-css-${id}`;
@@ -33,20 +33,8 @@ function applyHack(hackData, appliedHacks) {
       console.log(`Applied CSS for hack "${name}"`);
     }
 
-    // Apply JavaScript if present
-    if (jsCode && jsCode.trim()) {
-      const scriptElement = document.createElement("script");
-      scriptElement.id = `web-vibes-js-${id}`;
-      scriptElement.setAttribute("data-web-vibes", "true");
-      scriptElement.setAttribute("data-hack-id", id);
-      scriptElement.setAttribute("data-preview", preview.toString());
-      scriptElement.textContent = jsCode;
-
-      document.head.appendChild(scriptElement);
-      appliedElements.push(scriptElement);
-
-      console.log(`Applied JavaScript for hack "${name}"`);
-    }
+    // Note: JavaScript injection is handled by ApplyHackTool using chrome.scripting.executeScript()
+    // Content scripts cannot use chrome.scripting API due to CSP restrictions
 
     // Store the applied hack for management
     appliedHacks.set(id, {
@@ -61,6 +49,7 @@ function applyHack(hackData, appliedHacks) {
       elementsApplied: appliedElements.length,
       hasCSS: !!(cssCode && cssCode.trim()),
       hasJS: !!(jsCode && jsCode.trim()),
+      note: "JavaScript will be injected separately by ApplyHackTool"
     };
   } catch (error) {
     console.error("Error applying hack:", error);

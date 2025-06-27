@@ -14,7 +14,7 @@ function removeHackFromPage(hackId, appliedHacks) {
     const appliedHack = appliedHacks.get(hackId);
 
     if (appliedHack) {
-      // Remove all elements for this hack
+      // Remove all elements for this hack (CSS elements)
       appliedHack.elements.forEach((element) => {
         if (element.parentNode) {
           element.parentNode.removeChild(element);
@@ -28,15 +28,17 @@ function removeHackFromPage(hackId, appliedHacks) {
       return {
         success: true,
         message: `Successfully removed hack "${appliedHack.name}"`,
+        note: "JavaScript removal should be handled by the extension context"
       };
     } else {
-      // Try to remove by DOM query as fallback
+      // Try to remove by DOM query as fallback (CSS elements only)
       const elements = document.querySelectorAll(`[data-hack-id="${hackId}"]`);
       elements.forEach((element) => element.remove());
 
       return {
         success: true,
         message: "Hack removed (fallback method)",
+        note: "JavaScript removal should be handled by the extension context"
       };
     }
   } catch (error) {

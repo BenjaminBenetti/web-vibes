@@ -18,6 +18,11 @@ class PopupUI {
     this.hacksListEl = document.getElementById("hacksList");
     this.emptyStateEl = document.getElementById("emptyState");
     this.addHackBtn = document.getElementById("addHackBtn");
+    this.exportBtn = document.getElementById("exportBtn");
+    this.exportModal = null;
+    if (this.exportBtn) {
+      this.exportBtn.addEventListener("click", () => this.openExportModal());
+    }
   }
 
   async render() {
@@ -257,6 +262,61 @@ class PopupUI {
   handleEditHack(hack) {
     // Navigate to chat page with hackId query parameter
     window.location.href = `chat/chat.html?hackId=${encodeURIComponent(hack.id)}`;
+  }
+
+  async openExportModal() {
+    // Remove existing modal if present
+    if (this.exportModal) this.exportModal.remove();
+    const { hacks } = await this.hackService.getHacksForCurrentSite();
+    // Create modal
+    const modal = document.createElement("div");
+    modal.className = "export-modal-overlay";
+    modal.innerHTML = `
+      <div class="export-modal">
+        <h3>Export Vibes</h3>
+        <form id="exportVibesForm">
+          <div class="export-vibes-list">
+            ${hacks.map(hack => `
+              <label class="export-vibe-item">
+                <input type="checkbox" name="vibe" value="${hack.id}" checked>
+                <span>${this.escapeHtml(hack.name)}</span>
+              </label>
+            `).join("")}
+          </div>
+          <div class="export-modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="finalizeExportBtn">Export</button>
+          </div>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    this.exportModal = modal;
+    // Cancel button
+    modal.querySelector("#cancelExportBtn").onclick = () => modal.remove();
+    // Form submit
+    modal.querySelector("#exportVibesForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const checked = Array.from(modal.querySelectorAll('input[name="vibe"]:checked')).map(cb => cb.value);
+      const selected = hacks.filter(h => checked.includes(h.id));
+      this.downloadVibes(selected);
+      modal.remove();
+    };
+  }
+
+  downloadVibes(vibes) {
+    const data = JSON.stringify(vibes, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "web-vibes.grove";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
   }
 }
 

@@ -183,3 +183,126 @@
   --text-secondary: #94a3b8;
   --text-muted: #94a3b8;
 }
+
+/* Action Bar Styles */
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+}
+
+.action-bar .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 10px;
+  background: var(--theme-gradient);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter 0.18s;
+  white-space: nowrap;
+}
+
+.action-bar .btn:hover {
+  filter: brightness(1.08);
+}
+
+.export-btn {
+  /* No extra styles needed, inherits from .btn */
+}
+
+.btn-icon,
+.material-icons {
+  font-size: 20px;
+}
+
+/* Remove extra margin from hacks-container */
+.hacks-container {
+  margin-top: 0;
+}
+
+/* Reduce bottom margin of add-hack-section to fit action bar */
+.add-hack-section {
+  padding-bottom: 8px;
+}
+
+/* Export Modal Styles */
+.export-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(20, 24, 31, 0.55);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-modal {
+  background: var(--background-secondary);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  padding: 28px 24px 20px 24px;
+  min-width: 320px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.export-modal h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.export-vibes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.export-vibe-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--text-color);
+  background: var(--background-hover);
+  border-radius: 6px;
+  padding: 7px 12px;
+  transition: background 0.2s;
+}
+
+.export-vibe-item:hover {
+  background: var(--background-main);
+}
+
+.export-vibe-item input[type="checkbox"] {
+  accent-color: var(--accent-color);
+  width: 18px;
+  height: 18px;
+}
+
+.export-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}

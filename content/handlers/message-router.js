@@ -36,6 +36,10 @@ function routeMessage(request, sender, sendResponse, appliedHacks) {
         handleSearchWebsiteByKeyword(request, sender, sendResponse);
         break;
 
+      case MESSAGE_TYPES.SEARCH_WEBSITE_JAVASCRIPT:
+        handleSearchWebsiteJavaScript(request, sender, sendResponse);
+        break;
+
       default:
         sendResponse({
           success: false,

@@ -28,6 +28,7 @@ class ChatPage {
         new SearchWebsiteHTMLTool(),
         new InspectHTMLCSSTool(),
         new SearchWebsiteByKeywordTool(),
+        new SearchWebsiteJavaScriptTool(),
       ];
       this.agenticService = new AgenticService(this.aiService, tools);
     }

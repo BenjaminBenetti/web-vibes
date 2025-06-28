@@ -40,6 +40,14 @@ This directory contains all the agentic tools that allow the AI to interact with
   - `searchInHTML` (optional): Search in HTML attributes/tags (default: false)
 - **Returns**: Keyword matches with highlighted context and element information
 
+#### SearchWebsiteJavaScriptTool
+- **Purpose**: Search JavaScript content on the webpage using regex patterns
+- **Parameters**:
+  - `regex` (required): Regular expression pattern to search for
+  - `maxMatches` (optional): Maximum matches to return (default: 10)
+  - `contextLines` (optional): Lines of context around each match (default: 100)
+- **Returns**: JavaScript matches with context, line numbers, and script metadata
+
 ### Hack Management Tools
 
 #### SaveJSTool
@@ -116,6 +124,30 @@ const result = await searchWebsiteByKeyword({
 const result = await searchWebsiteHTML({
   selector: 'nav, .navigation, #nav',
   maxResults: 10
+});
+```
+
+### Searching JavaScript Content
+```javascript
+// Search for function declarations
+const result = await searchWebsiteJavaScript({
+  regex: 'function\\s+\\w+',
+  maxMatches: 5,
+  contextLines: 50
+});
+
+// Search for console.log statements
+const result = await searchWebsiteJavaScript({
+  regex: 'console\\.log',
+  maxMatches: 10,
+  contextLines: 20
+});
+
+// Search for variable declarations
+const result = await searchWebsiteJavaScript({
+  regex: 'const\\s+\\w+|let\\s+\\w+|var\\s+\\w+',
+  maxMatches: 15,
+  contextLines: 30
 });
 ```
 

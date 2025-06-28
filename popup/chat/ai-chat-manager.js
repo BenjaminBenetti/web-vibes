@@ -329,7 +329,7 @@ class AIChatManager {
   async handleAgenticMessage(message) {
     // Since we always create a hack on initialization, we can always use the agentic service
     const result = await this.agenticService.startAgenticLoop(message, {
-      maxIterations: 10,
+      maxIterations: 50,
       verbose: false,
       onMessage: (messageData) => {
         this.handleAgenticMessage_Callback(messageData);
@@ -426,18 +426,21 @@ class AIChatManager {
    * @returns {string} Cleaned content for display to user
    */
   cleanAIResponse(content) {
-    // Remove tool calls (TOOL_CALL: and PARAMETERS: lines)
+    // Prefer using unified parser from ToolCallParser to avoid duplication
+    if (
+      typeof window !== "undefined" &&
+      window.ToolCallParser &&
+      typeof window.ToolCallParser.stripToolArtifacts === "function"
+    ) {
+      return window.ToolCallParser.stripToolArtifacts(content);
+    }
+
+    // Fallback – basic regex cleaning if ToolCallParser is unavailable
     let cleaned = content.replace(/TOOL_CALL:\s*\w+/g, "");
     cleaned = cleaned.replace(/PARAMETERS:\s*\{[\s\S]*?\}/g, "");
-
-    // Remove tool result JSON blocks
-    cleaned = cleaned.replace(/Tool Result \([^)]+\):\s*\{[\s\S]*?\}/g, "");
-
-    // Clean up extra whitespace and newlines
-    cleaned = cleaned.replace(/\n\s*\n\s*\n/g, "\n\n"); // Remove triple+ newlines
-    cleaned = cleaned.replace(/^\s+|\s+$/g, ""); // Trim start/end whitespace
-
-    return cleaned;
+    cleaned = cleaned.replace(/Tool Result \([^)]*\):\s*\{[\s\S]*?\}/g, "");
+    cleaned = cleaned.replace(/\n\s*\n\s*\n/g, "\n\n");
+    return cleaned.trim();
   }
 
   /**

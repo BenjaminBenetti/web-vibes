@@ -25,6 +25,9 @@ class ChatPage {
         new ReadJSTool(this.hackService),
         new SaveCSSTool(this.hackService),
         new ReadCSSTool(this.hackService),
+        new SearchWebsiteHTMLTool(),
+        new InspectHTMLCSSTool(),
+        new SearchWebsiteByKeywordTool(),
       ];
       this.agenticService = new AgenticService(this.aiService, tools);
     }

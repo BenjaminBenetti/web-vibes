@@ -37,6 +37,8 @@
         "content/handlers/apply-hack-handler.js",
         "content/handlers/remove-hack-handler.js",
         "content/handlers/search-html-handler.js",
+        "content/handlers/inspect-css-handler.js",
+        "content/handlers/search-keyword-handler.js",
         "content/handlers/message-router.js",
         "content/content.js"
       ],

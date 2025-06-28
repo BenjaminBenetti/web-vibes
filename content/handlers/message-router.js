@@ -28,6 +28,14 @@ function routeMessage(request, sender, sendResponse, appliedHacks) {
         handleSearchWebsiteHTML(request, sender, sendResponse);
         break;
 
+      case MESSAGE_TYPES.INSPECT_HTML_CSS:
+        handleInspectHTMLCSS(request, sender, sendResponse);
+        break;
+
+      case MESSAGE_TYPES.SEARCH_WEBSITE_BY_KEYWORD:
+        handleSearchWebsiteByKeyword(request, sender, sendResponse);
+        break;
+
       default:
         sendResponse({
           success: false,

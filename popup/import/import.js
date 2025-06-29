@@ -156,7 +156,7 @@ class ImportPage {
       } else if (this.vibesData.hacks && Array.isArray(this.vibesData.hacks)) {
         vibesArray = this.vibesData.hacks;
       } else {
-        throw new Error("Invalid .grove file format");
+        throw new Error("Invalid .groove file format");
       }
 
       // Validate vibes
@@ -190,7 +190,7 @@ class ImportPage {
       this.fileUploadArea.innerHTML = `
         <span class="material-icons" style="color: #ef4444;">error</span>
         <p>Invalid file format</p>
-        <small>Please select a valid .grove file</small>
+        <small>Please select a valid .groove file</small>
       `;
       this.importBtn.disabled = true;
     }

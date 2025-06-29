@@ -315,7 +315,7 @@ class PopupUI {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "web-vibes.grove";
+    a.download = "web-vibes.groove";
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {

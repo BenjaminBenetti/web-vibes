@@ -1,0 +1,6 @@
+---
+description: 
+globs: */**.js
+alwaysApply: false
+---
+Always follow SOLID principals! You must seperate concerns in to different files. This is very important.

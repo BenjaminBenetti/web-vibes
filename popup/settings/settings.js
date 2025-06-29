@@ -1,12 +1,20 @@
 // Settings page script for Web Vibes Chrome Extension
 // Handles settings UI and interactions
 
+// Gemini imports
+//=require ../../lib/ai/gemini/model/gemini-settings.js
+//=require ../../lib/ai/gemini/repo/gemini-settings-repo.js
+//=require ../../lib/ai/gemini/service/gemini-settings-service.js
+
 /**
  * Settings UI Manager
  */
 class SettingsUI {
   constructor(settingsService) {
     this.settingsService = settingsService;
+    // Add Gemini settings service
+    this.geminiSettingsRepository = new GeminiSettingsRepository();
+    this.geminiSettingsService = new GeminiSettingsService(this.geminiSettingsRepository);
     this.initializeElements();
   }
   initializeElements() {
@@ -65,9 +73,8 @@ class SettingsUI {
 
     Object.entries(themes).forEach(([themeKey, themeData]) => {
       const themeOption = document.createElement("div");
-      themeOption.className = `theme-option ${
-        selectedTheme === themeKey ? "selected" : ""
-      }`;
+      themeOption.className = `theme-option ${selectedTheme === themeKey ? "selected" : ""
+        }`;
       themeOption.dataset.theme = themeKey;
 
       themeOption.innerHTML = `
@@ -94,8 +101,7 @@ class SettingsUI {
       await this.applyCurrentTheme(); // Apply the new theme
       this.collapseThemeSelector(); // Collapse after selection
       this.showMessage(
-        `Theme changed to ${
-          this.settingsService.getAvailableThemes()[themeKey].name
+        `Theme changed to ${this.settingsService.getAvailableThemes()[themeKey].name
         }`
       );
     } catch (error) {
@@ -200,8 +206,13 @@ class SettingsUI {
 
     this.aiCredentialsSection.style.display = "block";
 
-    // Get current credentials
-    const credentials = settings.getAICredentials(selectedAI);
+    // Use GeminiSettingsService for Gemini
+    let credentials = {};
+    if (selectedAI === "Gemini") {
+      credentials = (await this.geminiSettingsService.getAllSettings()) || {};
+    } else {
+      credentials = settings.getAICredentials(selectedAI);
+    }
 
     // Create credentials form
     const credentialsForm = document.createElement("div");
@@ -237,12 +248,17 @@ class SettingsUI {
 
         // Add input event listener to save credentials
         input.addEventListener("input", async () => {
-          const newCredentials = { ...credentials };
-          newCredentials[fieldName] = input.value.trim();
-          await this.settingsService.setAICredentials(
-            selectedAI,
-            newCredentials
-          );
+          if (selectedAI === "Gemini") {
+            // Use GeminiSettingsService
+            await this.geminiSettingsService.setApiKey(input.value.trim());
+          } else {
+            const newCredentials = { ...credentials };
+            newCredentials[fieldName] = input.value.trim();
+            await this.settingsService.setAICredentials(
+              selectedAI,
+              newCredentials
+            );
+          }
           await this.renderAIStatus();
         });
 
@@ -260,7 +276,11 @@ class SettingsUI {
     clearBtn.className = "btn-clear";
     clearBtn.textContent = "Clear Credentials";
     clearBtn.addEventListener("click", async () => {
-      await this.settingsService.clearAICredentials(selectedAI);
+      if (selectedAI === "Gemini") {
+        await this.geminiSettingsService.setApiKey("");
+      } else {
+        await this.settingsService.clearAICredentials(selectedAI);
+      }
       await this.renderAICredentials();
       await this.renderAIStatus();
     });
@@ -273,7 +293,13 @@ class SettingsUI {
 
   async renderAIStatus() {
     const settings = await this.settingsService.getAllSettings();
-    const isConfigured = settings.isAIConfigured();
+    const selectedAI = settings.selectedAI;
+    let isConfigured = false;
+    if (selectedAI === "Gemini") {
+      isConfigured = await this.geminiSettingsService.isConfigured();
+    } else {
+      isConfigured = settings.isAIConfigured();
+    }
 
     this.aiStatus.innerHTML = "";
 
@@ -285,14 +311,14 @@ class SettingsUI {
     if (isConfigured) {
       this.aiStatus.className = "ai-status configured";
       statusIcon.textContent = "check_circle";
-      statusText.textContent = `${settings.selectedAI} is configured and ready to use`;
+      statusText.textContent = `${selectedAI} is configured and ready to use`;
     } else {
       this.aiStatus.className = "ai-status not-configured";
       statusIcon.textContent = "warning";
-      if (settings.selectedAI === "Select AI") {
+      if (selectedAI === "Select AI") {
         statusText.textContent = "Please select an AI provider to get started";
       } else {
-        statusText.textContent = `${settings.selectedAI} requires additional configuration`;
+        statusText.textContent = `${selectedAI} requires additional configuration`;
       }
     }
 

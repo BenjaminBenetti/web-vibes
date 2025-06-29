@@ -278,7 +278,7 @@ class PopupUI {
           <div class="export-vibes-list">
             ${hacks.map(hack => `
               <label class="export-vibe-item">
-                <input type="checkbox" name="vibe" value="${hack.id}" checked>
+                <input type="checkbox" name="vibe" value="${hack.id}" ${hack.enabled ? 'checked' : ''}>
                 <span>${this.escapeHtml(hack.name)}</span>
               </label>
             `).join("")}

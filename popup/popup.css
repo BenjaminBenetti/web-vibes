@@ -12,6 +12,7 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .sub-header {
@@ -460,7 +461,7 @@ input:checked+.toggle-slider:before {
    Popup-specific: Action Bar & Export Modal
    ================================================== */
 
-/* Action Bar (Add New Vibe + Export) */
+/* Action Bar (Add New Vibe + Import + Export) */
 .action-bar {
     display: flex;
     align-items: center;
@@ -468,14 +469,14 @@ input:checked+.toggle-slider:before {
     padding: 20px;
     background: var(--background-secondary);
     border-bottom: 1px solid var(--border-color);
-    gap: 12px;
+    gap: 8px;
 }
 
 .action-bar .btn {
     flex: 1 1 0;
     min-width: 0;
     padding: 12px 0;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
     border-radius: 10px;
     background: var(--theme-gradient);
@@ -484,7 +485,7 @@ input:checked+.toggle-slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     transition: filter 0.18s;
     white-space: nowrap;
 }
@@ -494,13 +495,15 @@ input:checked+.toggle-slider:before {
 }
 
 .action-bar .add-btn {
-    flex: 1 1 auto;
+    flex: 2 1 auto;
+    font-size: 16px;
 }
 
+.action-bar .import-btn,
 .action-bar .export-btn {
     flex: 0 0 auto;
-    width: 48px;
-    min-width: 48px;
+    width: 44px;
+    min-width: 44px;
     padding: 12px 0;
     display: flex;
     align-items: center;
@@ -510,7 +513,7 @@ input:checked+.toggle-slider:before {
 /* Icon sizing within action bar */
 .action-bar .btn-icon,
 .action-bar .material-icons {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 /* Export Modal */

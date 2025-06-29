@@ -19,9 +19,14 @@ class PopupUI {
     this.emptyStateEl = document.getElementById("emptyState");
     this.addHackBtn = document.getElementById("addHackBtn");
     this.exportBtn = document.getElementById("exportBtn");
+    this.importBtn = document.getElementById("importBtn");
     this.exportModal = null;
+
     if (this.exportBtn) {
       this.exportBtn.addEventListener("click", () => this.openExportModal());
+    }
+    if (this.importBtn) {
+      this.importBtn.addEventListener("click", () => this.openImportModal());
     }
   }
 
@@ -317,6 +322,28 @@ class PopupUI {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }, 100);
+  }
+
+  async openImportModal() {
+    // Open import page in a new Chrome extension tab instead of modal
+    // This prevents the popup from closing when file picker is used
+    // Pass the current hostname as a URL parameter
+    const importUrl = chrome.runtime.getURL('popup/import/import.html') +
+      `?hostname=${encodeURIComponent(this.currentHostname)}`;
+    chrome.tabs.create({
+      url: importUrl
+    });
+  }
+
+  showNotification(message, type = "info") {
+    const notification = document.createElement("div");
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
   }
 }
 

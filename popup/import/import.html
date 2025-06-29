@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import Vibes - Web Vibes</title>
+  <link rel="stylesheet" href="../main.css">
+  <link rel="stylesheet" href="import.css">
+</head>
+
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-top">
+        <h1>Import Vibes</h1>
+        <button class="back-btn" id="backBtn" title="Back to Popup">
+          <span class="material-icons">arrow_back</span>
+        </button>
+      </div>
+      <div class="current-site" id="currentSite">Loading...</div>
+    </header>
+
+    <div class="import-content">
+      <div class="import-description">
+        <p>Select a .grove file to import vibes to the current site.</p>
+        <p class="note">All imported vibes will be applied to the current site, regardless of their original target.</p>
+      </div>
+
+      <div class="file-upload-area" id="fileUploadArea">
+        <span class="material-icons">file_upload</span>
+        <p>Click to select a .grove file</p>
+        <small>or drag and drop here</small>
+        <input type="file" id="importFile" accept=".grove,application/json" style="display: none;">
+      </div>
+
+      <div class="import-preview" id="importPreview" style="display: none;">
+        <h4>Vibes to Import:</h4>
+        <div class="import-vibes-list" id="importVibesList"></div>
+      </div>
+
+      <div class="import-actions">
+        <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="importBtn" disabled>
+          <span class="material-icons">file_upload</span>
+          Import Vibes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load library files in dependency order -->
+  <script src="../../lib/constants/message-types.js"></script>
+  <script src="../../lib/settings/model/settings.js"></script>
+  <script src="../../lib/settings/repo/settings-repo.js"></script>
+  <script src="../../lib/settings/service/settings-service.js"></script>
+  <script src="../../lib/hack/model/hack.js"></script>
+  <script src="../../lib/hack/repo/hack-repo.js"></script>
+  <script src="../../lib/hack/service/hack-service.js"></script>
+  <script src="import.js"></script>
+</body>
+
+</html>

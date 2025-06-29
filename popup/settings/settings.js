@@ -227,50 +227,64 @@ class SettingsUI {
     title.style.color = "var(--text-color)";
     credentialsForm.appendChild(title);
 
-    // Create input fields based on credential fields definition
-    Object.entries(aiData.credentialFields || {}).forEach(
-      ([fieldName, fieldConfig]) => {
-        const fieldContainer = document.createElement("div");
-        fieldContainer.className = "credential-field";
+    if (selectedAI === "Gemini") {
+      const geminiSettings = await this.geminiSettingsService.getAllSettings();
+      const availableModels = this.geminiSettingsService.getAvailableModels();
 
-        const label = document.createElement("label");
-        label.className = "credential-label";
-        label.textContent = fieldConfig.label;
-        label.htmlFor = `ai-${fieldName}`;
+      // Create API key field
+      const apiKeyContainer = this.createCredentialField(
+        "apiKey",
+        {
+          label: "API Key",
+          type: "password",
+          placeholder: "Enter your Gemini API key",
+        },
+        geminiSettings.apiKey
+      );
 
-        const input = document.createElement("input");
-        input.type = fieldConfig.type || "text";
-        input.id = `ai-${fieldName}`;
-        input.className = "credential-input";
-        input.placeholder = fieldConfig.placeholder || "";
-        input.value = credentials[fieldName] || "";
-        input.required = fieldConfig.required || false;
+      credentialsForm.appendChild(apiKeyContainer);
 
-        // Add input event listener to save credentials
-        input.addEventListener("input", async () => {
-          if (selectedAI === "Gemini") {
-            // Use GeminiSettingsService
-            await this.geminiSettingsService.setApiKey(input.value.trim());
-          } else {
-            const newCredentials = { ...credentials };
-            newCredentials[fieldName] = input.value.trim();
-            await this.settingsService.setAICredentials(
+      apiKeyContainer.querySelector("input").addEventListener("input", async (e) => {
+        await this.geminiSettingsService.setApiKey(e.target.value);
+        await this.renderAIStatus();
+      });
+
+      // Create model selector
+      const modelSelectorContainer = this.createModelSelector(
+        "model",
+        "Model",
+        geminiSettings.model,
+        availableModels
+      );
+      credentialsForm.appendChild(modelSelectorContainer);
+    } else {
+      // Create input fields based on credential fields definition
+      Object.entries(aiData.credentialFields || {}).forEach(
+        ([fieldName, fieldConfig]) => {
+          const fieldContainer = this.createCredentialField(
+            fieldName,
+            fieldConfig,
+            credentials[fieldName] || ""
+          );
+          credentialsForm.appendChild(fieldContainer);
+
+          fieldContainer.querySelector("input").addEventListener("input", async (e) => {
+            const updatedCredentials = {
+              [fieldName]: e.target.value,
+            };
+            await this.settingsService.saveAICredentials(
               selectedAI,
-              newCredentials
+              updatedCredentials
             );
-          }
-          await this.renderAIStatus();
-        });
-
-        fieldContainer.appendChild(label);
-        fieldContainer.appendChild(input);
-        credentialsForm.appendChild(fieldContainer);
-      }
-    );
+            await this.renderAIStatus();
+          });
+        }
+      );
+    }
 
     // Add clear credentials button
-    const actions = document.createElement("div");
-    actions.className = "credential-actions";
+    const clearBtnContainer = document.createElement("div");
+    clearBtnContainer.className = "credential-actions";
 
     const clearBtn = document.createElement("button");
     clearBtn.className = "btn-clear";
@@ -279,16 +293,75 @@ class SettingsUI {
       if (selectedAI === "Gemini") {
         await this.geminiSettingsService.setApiKey("");
       } else {
-        await this.settingsService.clearAICredentials(selectedAI);
+        await this.settingsService.saveAICredentials(selectedAI, {});
       }
+      // Re-render the credentials and status
       await this.renderAICredentials();
       await this.renderAIStatus();
     });
 
-    actions.appendChild(clearBtn);
-    credentialsForm.appendChild(actions);
-
+    clearBtnContainer.appendChild(clearBtn);
     this.aiCredentialsSection.appendChild(credentialsForm);
+    this.aiCredentialsSection.appendChild(clearBtnContainer);
+  }
+
+  createCredentialField(fieldName, fieldConfig, value) {
+    const fieldContainer = document.createElement("div");
+    fieldContainer.className = "credential-field";
+
+    const label = document.createElement("label");
+    label.className = "credential-label";
+    label.textContent = fieldConfig.label;
+    label.htmlFor = `ai-${fieldName}`;
+
+    const input = document.createElement("input");
+    input.type = fieldConfig.type || "text";
+    input.id = `ai-${fieldName}`;
+    input.className = "credential-input";
+    input.placeholder = fieldConfig.placeholder || "";
+    input.value = value || "";
+    input.required = fieldConfig.required || false;
+
+    fieldContainer.appendChild(label);
+    fieldContainer.appendChild(input);
+
+    return fieldContainer;
+  }
+
+  createModelSelector(id, label, selectedModel, models) {
+    const selectorContainer = document.createElement("div");
+    selectorContainer.className = "credential-field";
+
+    const labelEl = document.createElement("label");
+    labelEl.className = "credential-label";
+    labelEl.textContent = label;
+    labelEl.htmlFor = `ai-${id}`;
+
+    const selectEl = document.createElement("select");
+    selectEl.id = `ai-${id}`;
+    selectEl.className = "credential-input";
+
+    for (const modelKey in models) {
+      const option = document.createElement("option");
+      option.value = modelKey;
+      option.textContent = models[modelKey].name;
+      if (modelKey === selectedModel) {
+        option.selected = true;
+      }
+      selectEl.appendChild(option);
+    }
+
+    selectEl.addEventListener("change", async (e) => {
+      await this.geminiSettingsService.setModel(e.target.value);
+      this.showMessage(
+        `Switched to ${models[e.target.value].name} model`
+      );
+      await this.renderAIStatus();
+    });
+
+    selectorContainer.appendChild(labelEl);
+    selectorContainer.appendChild(selectEl);
+    return selectorContainer;
   }
 
   async renderAIStatus() {

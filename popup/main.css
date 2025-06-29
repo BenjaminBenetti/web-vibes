@@ -184,4 +184,33 @@
   --text-muted: #94a3b8;
 }
 
+/* Dark theme select and option styling */
+.theme-dark-cosmic select,
+.theme-dark-ocean select,
+.theme-dark-emerald select,
+.theme-dark-crimson select,
+.theme-dark-violet select {
+  background-color: var(--background-secondary, #2a2d3a);
+  color: var(--text-color, #e2e8f0);
+  border: 1px solid var(--border-color, #4a4d5a);
+}
+
+.theme-dark-cosmic select:focus,
+.theme-dark-ocean select:focus,
+.theme-dark-emerald select:focus,
+.theme-dark-crimson select:focus,
+.theme-dark-violet select:focus {
+  outline: none;
+  border-color: var(--accent-color, #667eea);
+}
+
+.theme-dark-cosmic option,
+.theme-dark-ocean option,
+.theme-dark-emerald option,
+.theme-dark-crimson option,
+.theme-dark-violet option {
+  background-color: var(--background-secondary, #2a2d3a);
+  color: var(--text-color, #e2e8f0);
+}
+
 /* Popup-specific (action bar & export modal) styles moved to popup/popup.css */

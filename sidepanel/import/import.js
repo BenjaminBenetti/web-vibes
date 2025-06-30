@@ -28,12 +28,12 @@ class ImportPage {
   setupEventListeners() {
     // Back button
     this.backBtn.addEventListener("click", () => {
-      window.close();
+      window.location.href = "../sidepanel.html";
     });
 
     // Cancel button
     this.cancelBtn.addEventListener("click", () => {
-      window.close();
+      window.location.href = "../sidepanel.html";
     });
 
     // File upload area click handler
@@ -78,7 +78,10 @@ class ImportPage {
           Importing...
         `;
 
-        await this.hackService.importVibes(this.currentHostname, this.vibesData);
+        await this.hackService.importVibes(
+          this.currentHostname,
+          this.vibesData
+        );
 
         this.showNotification("Vibes imported successfully!", "success");
 
@@ -86,7 +89,6 @@ class ImportPage {
         setTimeout(() => {
           window.close();
         }, 1500);
-
       } catch (error) {
         console.error("Import failed:", error);
         this.importBtn.disabled = false;
@@ -94,7 +96,10 @@ class ImportPage {
           <span class="material-icons">file_upload</span>
           Import Vibes
         `;
-        this.showNotification("Failed to import vibes: " + error.message, "error");
+        this.showNotification(
+          "Failed to import vibes: " + error.message,
+          "error"
+        );
       }
     });
   }
@@ -127,14 +132,15 @@ class ImportPage {
     try {
       // Get hostname from URL parameters instead of current tab
       const urlParams = new URLSearchParams(window.location.search);
-      const hostname = urlParams.get('hostname');
+      const hostname = urlParams.get("hostname");
 
       if (hostname) {
         this.currentHostname = hostname;
         this.currentSiteEl.textContent = hostname;
       } else {
         // Fallback: try to get from current tab if no parameter provided
-        const { hostname: currentHostname } = await this.hackService.getHacksForCurrentSite();
+        const { hostname: currentHostname } =
+          await this.hackService.getHacksForCurrentSite();
         this.currentHostname = currentHostname;
         this.currentSiteEl.textContent = currentHostname;
       }
@@ -160,22 +166,26 @@ class ImportPage {
       }
 
       // Validate vibes
-      const validVibes = vibesArray.filter(vibe => Hack.isValid(vibe));
+      const validVibes = vibesArray.filter((vibe) => Hack.isValid(vibe));
 
       if (validVibes.length === 0) {
         throw new Error("No valid vibes found in the file");
       }
 
       // Show preview
-      this.importVibesList.innerHTML = validVibes.map(vibe => `
+      this.importVibesList.innerHTML = validVibes
+        .map(
+          (vibe) => `
         <div class="import-vibe-item">
           <span class="material-icons">style</span>
           <span class="vibe-name">${this.escapeHtml(vibe.name)}</span>
-          <span class="vibe-status ${vibe.enabled ? 'enabled' : 'disabled'}">
-            ${vibe.enabled ? 'Enabled' : 'Disabled'}
+          <span class="vibe-status ${vibe.enabled ? "enabled" : "disabled"}">
+            ${vibe.enabled ? "Enabled" : "Disabled"}
           </span>
         </div>
-      `).join("");
+      `
+        )
+        .join("");
 
       this.importPreview.style.display = "block";
       this.importBtn.disabled = false;
@@ -184,7 +194,6 @@ class ImportPage {
         <p>${file.name}</p>
         <small>${validVibes.length} vibes ready to import</small>
       `;
-
     } catch (error) {
       console.error("Error reading file:", error);
       this.fileUploadArea.innerHTML = `
@@ -232,4 +241,4 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const importPage = new ImportPage();
   await importPage.initialize();
-}); 
+});

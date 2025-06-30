@@ -14,7 +14,9 @@ class SettingsUI {
     this.settingsService = settingsService;
     // Add Gemini settings service
     this.geminiSettingsRepository = new GeminiSettingsRepository();
-    this.geminiSettingsService = new GeminiSettingsService(this.geminiSettingsRepository);
+    this.geminiSettingsService = new GeminiSettingsService(
+      this.geminiSettingsRepository
+    );
     this.initializeElements();
   }
   initializeElements() {
@@ -79,8 +81,9 @@ class SettingsUI {
 
     Object.entries(themes).forEach(([themeKey, themeData]) => {
       const themeOption = document.createElement("div");
-      themeOption.className = `theme-option ${selectedTheme === themeKey ? "selected" : ""
-        }`;
+      themeOption.className = `theme-option ${
+        selectedTheme === themeKey ? "selected" : ""
+      }`;
       themeOption.dataset.theme = themeKey;
 
       themeOption.innerHTML = `
@@ -107,7 +110,8 @@ class SettingsUI {
       await this.applyCurrentTheme(); // Apply the new theme
       this.collapseThemeSelector(); // Collapse after selection
       this.showMessage(
-        `Theme changed to ${this.settingsService.getAvailableThemes()[themeKey].name
+        `Theme changed to ${
+          this.settingsService.getAvailableThemes()[themeKey].name
         }`
       );
     } catch (error) {
@@ -165,8 +169,8 @@ class SettingsUI {
   }
 
   handleBackNavigation() {
-    // Navigate back to the main popup
-    window.location.href = "../popup.html";
+    // Navigate back to the main sidepanel
+    window.location.href = "../sidepanel.html";
   }
 
   showMessage(message) {
@@ -191,7 +195,8 @@ class SettingsUI {
 
     // Populate general AI settings
     this.maxConversationSizeInput.value = settings.maxConversationSize;
-    this.maxIndividualMessageSizeInput.value = settings.maxIndividualMessageSize;
+    this.maxIndividualMessageSizeInput.value =
+      settings.maxIndividualMessageSize;
 
     // Render AI credentials section
     await this.renderAICredentials();
@@ -254,10 +259,12 @@ class SettingsUI {
 
       credentialsForm.appendChild(apiKeyContainer);
 
-      apiKeyContainer.querySelector("input").addEventListener("input", async (e) => {
-        await this.geminiSettingsService.setApiKey(e.target.value);
-        await this.renderAIStatus();
-      });
+      apiKeyContainer
+        .querySelector("input")
+        .addEventListener("input", async (e) => {
+          await this.geminiSettingsService.setApiKey(e.target.value);
+          await this.renderAIStatus();
+        });
 
       // Create model selector
       const modelSelectorContainer = this.createModelSelector(
@@ -278,16 +285,18 @@ class SettingsUI {
           );
           credentialsForm.appendChild(fieldContainer);
 
-          fieldContainer.querySelector("input").addEventListener("input", async (e) => {
-            const updatedCredentials = {
-              [fieldName]: e.target.value,
-            };
-            await this.settingsService.saveAICredentials(
-              selectedAI,
-              updatedCredentials
-            );
-            await this.renderAIStatus();
-          });
+          fieldContainer
+            .querySelector("input")
+            .addEventListener("input", async (e) => {
+              const updatedCredentials = {
+                [fieldName]: e.target.value,
+              };
+              await this.settingsService.saveAICredentials(
+                selectedAI,
+                updatedCredentials
+              );
+              await this.renderAIStatus();
+            });
         }
       );
     }
@@ -363,9 +372,7 @@ class SettingsUI {
 
     selectEl.addEventListener("change", async (e) => {
       await this.geminiSettingsService.setModel(e.target.value);
-      this.showMessage(
-        `Switched to ${models[e.target.value].name} model`
-      );
+      this.showMessage(`Switched to ${models[e.target.value].name} model`);
       await this.renderAIStatus();
     });
 

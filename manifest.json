@@ -8,7 +8,8 @@
     "storage",
     "scripting",
     "tabs",
-    "webNavigation"
+    "webNavigation",
+    "sidePanel"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -17,14 +18,16 @@
     "service_worker": "service-worker/background.js"
   },
   "action": {
-    "default_popup": "popup/popup.html",
-    "default_title": "Web Vibes",
+    "default_title": "Open Web Vibes Side Panel",
     "default_icon": {
       "16": "icons/icon.png",
       "32": "icons/icon.png",
       "48": "icons/icon.png",
       "128": "icons/icon.png"
     }
+  },
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
   },
   "content_scripts": [
     {
@@ -55,10 +58,14 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "popup/import/import.html",
-        "popup/import/import.css",
-        "popup/import/import.js",
-        "popup/main.css",
+        "sidepanel/import/import.html",
+        "sidepanel/import/import.css",
+        "sidepanel/import/import.js",
+        "sidepanel/main.css",
+        "sidepanel/chat/chat.html",
+        "sidepanel/settings/settings.html",
+        "sidepanel/sidepanel.html",
+        "sidepanel/sidepanel.css",
         "lib/*"
       ],
       "matches": [

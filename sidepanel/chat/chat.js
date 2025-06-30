@@ -132,8 +132,8 @@ class ChatPage {
   }
 
   handleBackNavigation() {
-    // Navigate back to main popup
-    window.location.href = "../popup.html";
+    // Navigate back to main sidepanel
+    window.location.href = "../sidepanel.html";
   }
 
   handleSettingsNavigation() {

@@ -1,11 +1,11 @@
-// Popup script for Web Vibes Chrome Extension
-// UI and event handling classes for the popup interface
+// Side Panel script for Web Vibes Chrome Extension
+// UI and event handling classes for the side panel interface
 // Data models and services are loaded from separate files
 
 /**
- * UI Manager for rendering and updating the popup interface
+ * UI Manager for rendering and updating the side panel interface
  */
-class PopupUI {
+class SidePanelUI {
   constructor(hackService) {
     this.hackService = hackService;
     this.currentHostname = "";
@@ -245,12 +245,12 @@ class PopupUI {
   }
 
   handleAddHack() {
-    // Navigate to the AI chat page
+    // Navigate to the AI chat page within the side panel
     window.location.href = "chat/chat.html";
   }
 
   handleSettingsNavigation() {
-    // Navigate to settings page
+    // Navigate to settings page within the side panel
     window.location.href = "settings/settings.html";
   }
 
@@ -283,7 +283,7 @@ class PopupUI {
    * @param {Hack} hack - Hack object to edit
    */
   handleEditHack(hack) {
-    // Navigate to chat page with hackId query parameter
+    // Navigate to chat page with hackId query parameter within the side panel
     window.location.href = `chat/chat.html?hackId=${encodeURIComponent(
       hack.id
     )}`;
@@ -377,15 +377,11 @@ class PopupUI {
   }
 
   async openImportModal() {
-    // Open import page in a new Chrome extension tab instead of modal
-    // This prevents the popup from closing when file picker is used
+    // Navigate to import page within the side panel
     // Pass the current hostname as a URL parameter
-    const importUrl =
-      chrome.runtime.getURL("popup/import/import.html") +
-      `?hostname=${encodeURIComponent(this.currentHostname)}`;
-    chrome.tabs.create({
-      url: importUrl,
-    });
+    window.location.href = `import/import.html?hostname=${encodeURIComponent(
+      this.currentHostname
+    )}`;
   }
 
   showNotification(message, type = "info") {
@@ -401,9 +397,9 @@ class PopupUI {
 }
 
 /**
- * Event handler for popup interactions
+ * Event handler for side panel interactions
  */
-class PopupEventHandler {
+class SidePanelEventHandler {
   constructor(ui) {
     this.ui = ui;
     this.setupEventListeners();
@@ -447,21 +443,23 @@ class PopupEventHandler {
 }
 
 /**
- * Main application controller
+ * Main application controller for side panel
  */
-class PopupApp {
+class SidePanelApp {
   constructor() {
     this.hackRepository = new HackRepository();
     this.hackService = new HackService(this.hackRepository);
     this.settingsRepository = new SettingsRepository();
     this.settingsService = new SettingsService(this.settingsRepository);
-    this.ui = new PopupUI(this.hackService);
-    this.eventHandler = new PopupEventHandler(this.ui);
+    this.ui = new SidePanelUI(this.hackService);
+    this.eventHandler = new SidePanelEventHandler(this.ui);
   }
 
   async initialize() {
     await this.loadTheme();
     await this.ui.render();
+    // Set up tab change listener to update content when switching tabs
+    this.setupTabChangeListener();
   }
 
   async loadTheme() {
@@ -482,12 +480,26 @@ class PopupApp {
       console.error("Error loading theme:", error);
     }
   }
+
+  setupTabChangeListener() {
+    // Listen for tab changes and update the side panel content
+    chrome.tabs.onActivated.addListener(async () => {
+      await this.ui.render();
+    });
+
+    // Listen for tab updates (URL changes)
+    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+      if (changeInfo.url) {
+        await this.ui.render();
+      }
+    });
+  }
 }
 
-// Initialize the popup when DOM is loaded
+// Initialize the side panel when DOM is loaded
 document.addEventListener("DOMContentLoaded", async function () {
-  console.log("Web Vibes popup loaded");
+  console.log("Web Vibes side panel loaded");
 
-  const app = new PopupApp();
+  const app = new SidePanelApp();
   await app.initialize();
 });

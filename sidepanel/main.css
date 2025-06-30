@@ -15,8 +15,8 @@
    BASE STYLES
    ========================================== */
 
-/* Core popup styles - contains variables, layout, and component styles */
-@import url('popup.css');
+/* Core sidepanel styles - contains variables, layout, and component styles */
+@import url('sidepanel.css');
 
 /* ==========================================
    GLOBAL UTILITIES
@@ -203,4 +203,4 @@
   color: var(--text-color);
 }
 
-/* Popup-specific (action bar & export modal) styles moved to popup/popup.css */
+/* Side panel specific styles are in sidepanel.css */

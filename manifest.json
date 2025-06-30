@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Web Vibes",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A chrome extension that let's you vibe hack any website on the fly, then save your hacks for later use.",
   "permissions": [
     "activeTab",

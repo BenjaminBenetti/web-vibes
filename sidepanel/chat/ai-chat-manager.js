@@ -152,7 +152,7 @@ class AIChatManager {
     if (this.isEditingExistingHack) {
       await this.clearCurrentHack();
     }
-    
+
     if (this.modal) {
       this.modal.classList.remove("visible");
     }
@@ -311,16 +311,18 @@ class AIChatManager {
     this.originalHackEnabledState = hack.enabled;
     // Mark that we are editing an existing stored hack
     this.isEditingExistingHack = true;
-    
+
     // Get current hostname for disabling the hack
     const { hostname } = await this.hackService.getHacksForCurrentSite();
-    
+
     // Disable the hack to prevent conflicts during editing
     if (hack.enabled) {
       await this.hackService.updateHack(hostname, hack.id, { enabled: false });
-      console.log(`Disabled hack "${hack.name}" during editing to prevent conflicts`);
+      console.log(
+        `Disabled hack "${hack.name}" during editing to prevent conflicts`
+      );
     }
-    
+
     if (this.agenticService) {
       this.agenticService.setCurrentHack(hack);
       this.agenticService.clearConversationHistory();
@@ -414,21 +416,29 @@ class AIChatManager {
    */
   async clearCurrentHack() {
     // Re-enable the hack if it was originally enabled before editing and we're in editing mode
-    if (this.currentHack && this.isEditingExistingHack && this.originalHackEnabledState === true) {
+    if (
+      this.currentHack &&
+      this.isEditingExistingHack &&
+      this.originalHackEnabledState === true
+    ) {
       try {
         const { hostname } = await this.hackService.getHacksForCurrentSite();
-        await this.hackService.updateHack(hostname, this.currentHack.id, { enabled: true });
-        console.log(`Re-enabled hack "${this.currentHack.name}" after editing session ended`);
+        await this.hackService.updateHack(hostname, this.currentHack.id, {
+          enabled: true,
+        });
+        console.log(
+          `Re-enabled hack "${this.currentHack.name}" after editing session ended`
+        );
       } catch (error) {
         console.error("Error re-enabling hack after editing:", error);
       }
     }
-    
+
     // Reset tracking variables
     this.currentHack = null;
     this.isEditingExistingHack = false;
     this.originalHackEnabledState = null;
-    
+
     this.addMessage(
       "💬 No specific hack selected. I can help you create new code or discuss web development.",
       "system"
@@ -743,19 +753,19 @@ class AIChatManager {
       // Create a new message element specifically for the buttons
       const buttonMessageDiv = document.createElement("div");
       buttonMessageDiv.className = "chat-message system";
-      
+
       const buttonContentDiv = document.createElement("div");
       buttonContentDiv.className = "message-content";
       buttonContentDiv.style.padding = "12px 16px";
       buttonContentDiv.style.display = "flex";
       buttonContentDiv.style.gap = "8px";
       buttonContentDiv.style.justifyContent = "flex-start";
-      
+
       buttonContentDiv.appendChild(saveButton);
       buttonContentDiv.appendChild(refreshButton);
-      
+
       buttonMessageDiv.appendChild(buttonContentDiv);
-      
+
       // Add the button message to the chat
       if (this.chatMessages) {
         this.chatMessages.appendChild(buttonMessageDiv);
@@ -783,12 +793,12 @@ class AIChatManager {
           cssCode: this.currentHack.cssCode,
           jsCode: this.currentHack.jsCode,
         };
-        
+
         // Restore original enabled state when saving
         if (this.originalHackEnabledState !== null) {
           updateData.enabled = this.originalHackEnabledState;
         }
-        
+
         await this.hackService.updateHack(
           this.currentHostname,
           this.currentHack.id,

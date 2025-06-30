@@ -648,14 +648,59 @@ class AIChatManager {
         this.saveCurrentHack();
       });
 
-      // Add button after the last system message
+      // NEW: Create refresh button
+      const refreshButton = document.createElement("button");
+      refreshButton.className = "btn btn-primary icon-only";
+      refreshButton.title = "reload page. Can help if the vibe is not applying properly."; // Tooltip text
+      refreshButton.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+          <span class="material-icons">refresh</span>
+        </div>
+      `;
+      refreshButton.addEventListener("click", async () => {
+        try {
+          // Get the currently active tab in this window
+          const [activeTab] = await chrome.tabs.query({
+            active: true,
+            currentWindow: true,
+          });
+          if (!activeTab) return;
+
+          // Wait for the tab to finish reloading, then re-apply the current vibe
+          const tabId = activeTab.id;
+
+          const onUpdatedListener = async (updatedTabId, changeInfo) => {
+            if (updatedTabId === tabId && changeInfo.status === "complete") {
+              chrome.tabs.onUpdated.removeListener(onUpdatedListener);
+              // Re-apply current hack as a preview using the ApplyHack tool (if available)
+              const applyHackTool = this.agenticService?.tools?.get("apply_hack");
+              if (applyHackTool && this.currentHack) {
+                if (typeof applyHackTool.setCurrentHack === "function") {
+                  applyHackTool.setCurrentHack(this.currentHack);
+                }
+                await applyHackTool.run({ preview: true });
+              }
+            }
+          };
+
+          chrome.tabs.onUpdated.addListener(onUpdatedListener);
+          // Trigger the reload
+          await chrome.tabs.reload(tabId);
+        } catch (error) {
+          console.error("Error refreshing page and re-applying vibe:", error);
+          this.addMessage("❌ Failed to refresh the page and re-apply the vibe.", "system");
+        }
+      });
+
+      // Add both buttons after the last system message
       const messages = this.chatMessages?.querySelectorAll(".chat-message");
       if (messages && messages.length > 0) {
         const lastMessage = messages[messages.length - 1];
         const messageContent = lastMessage.querySelector(".message-content");
         if (messageContent) {
           messageContent.appendChild(saveButton);
-          // Scroll to bottom so the button is visible
+          messageContent.appendChild(refreshButton);
+          // Scroll to bottom so the buttons are visible
           if (this.chatMessages) {
             this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
           }

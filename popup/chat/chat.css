@@ -663,3 +663,18 @@
 [class*="theme-dark"] .chat-loading-overlay {
     background: rgba(0, 0, 0, 0.7);
 }
+
+.message-content>.btn.icon-only {
+    padding: 6px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    /* gap from previous button */
+}
+
+.message-content>.btn.icon-only .material-icons {
+    margin: 0;
+}

@@ -16,7 +16,8 @@ class ChatPage {
     if (typeof createAgenticService === "function") {
       this.agenticService = createAgenticService(
         this.aiService,
-        this.hackService
+        this.hackService,
+        this.settingsService
       );
     } else {
       // Fallback manual creation if utility function not available
@@ -30,7 +31,11 @@ class ChatPage {
         new SearchWebsiteByKeywordTool(),
         new SearchWebsiteJavaScriptTool(),
       ];
-      this.agenticService = new AgenticService(this.aiService, tools);
+      this.agenticService = new AgenticService(
+        this.aiService,
+        tools,
+        this.settingsService
+      );
     }
 
     this.aiChatManager = new AIChatManager(

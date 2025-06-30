@@ -26,13 +26,15 @@
 /* Settings content */
 .settings-content {
   padding: 0 16px 16px;
-  overflow: visible; /* Ensure popovers can extend beyond container */
+  overflow: visible;
+  /* Ensure popovers can extend beyond container */
 }
 
 .settings-section {
   margin-bottom: 24px;
   padding: 16px;
-  overflow: visible; /* Ensure popovers can extend beyond section */
+  overflow: visible;
+  /* Ensure popovers can extend beyond section */
 }
 
 .settings-section h2 {
@@ -180,6 +182,7 @@
     opacity: 0;
     transform: translateY(-8px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -273,6 +276,7 @@
 
 .ai-credentials-section {
   margin-top: 16px;
+  margin-bottom: 16px;
   padding: 16px;
   background: var(--background-hover);
   border-radius: 8px;

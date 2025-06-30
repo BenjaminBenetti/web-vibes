@@ -30,6 +30,12 @@ class SettingsUI {
     this.aiSelector = document.getElementById("aiSelector");
     this.aiCredentialsSection = document.getElementById("aiCredentialsSection");
     this.aiStatus = document.getElementById("aiStatus");
+    this.maxConversationSizeInput = document.getElementById(
+      "maxConversationSize"
+    );
+    this.maxIndividualMessageSizeInput = document.getElementById(
+      "maxIndividualMessageSize"
+    );
   }
 
   async render() {
@@ -182,6 +188,10 @@ class SettingsUI {
       option.selected = settings.selectedAI === aiKey;
       this.aiSelector.appendChild(option);
     });
+
+    // Populate general AI settings
+    this.maxConversationSizeInput.value = settings.maxConversationSize;
+    this.maxIndividualMessageSizeInput.value = settings.maxIndividualMessageSize;
 
     // Render AI credentials section
     await this.renderAICredentials();
@@ -409,6 +419,15 @@ class SettingsEventHandler {
     this.setupEventListeners();
   }
 
+  debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+      const context = this;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+  }
+
   setupEventListeners() {
     // Back button
     this.ui.backBtn.addEventListener("click", () => {
@@ -439,6 +458,35 @@ class SettingsEventHandler {
       await this.ui.renderAICredentials();
       await this.ui.renderAIStatus();
     });
+
+    // Debounced handlers for general AI settings
+    const handleMaxConversationSizeChange = this.debounce(async (event) => {
+      const value = parseInt(event.target.value, 10);
+      if (!isNaN(value) && value > 0) {
+        await this.ui.settingsService.setMaxConversationSize(value);
+        this.ui.showMessage("Max conversation size updated.");
+      }
+    }, 500);
+
+    const handleMaxIndividualMessageSizeChange = this.debounce(
+      async (event) => {
+        const value = parseInt(event.target.value, 10);
+        if (!isNaN(value) && value > 0) {
+          await this.ui.settingsService.setMaxIndividualMessageSize(value);
+          this.ui.showMessage("Max message size updated.");
+        }
+      },
+      500
+    );
+
+    this.ui.maxConversationSizeInput.addEventListener(
+      "input",
+      handleMaxConversationSizeChange
+    );
+    this.ui.maxIndividualMessageSizeInput.addEventListener(
+      "input",
+      handleMaxIndividualMessageSizeChange
+    );
 
     // TODO: Add listeners for individual setting changes
     // These will be added when specific settings are implemented

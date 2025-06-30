@@ -63,6 +63,26 @@
           <!-- AI credentials form will be populated by JavaScript -->
         </div>
 
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label" for="maxConversationSize">Max Conversation Size</label>
+            <span class="setting-description">Controls past message retention</span>
+          </div>
+          <div class="setting-control">
+            <input type="number" id="maxConversationSize" class="setting-input" placeholder="e.g., 8192">
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label" for="maxIndividualMessageSize">Max Message Size</label>
+            <span class="setting-description">Max tokens for a single message</span>
+          </div>
+          <div class="setting-control">
+            <input type="number" id="maxIndividualMessageSize" class="setting-input" placeholder="e.g., 4096">
+          </div>
+        </div>
+
         <div class="ai-status" id="aiStatus">
           <!-- AI configuration status will be shown here -->
         </div>

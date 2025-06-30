@@ -289,19 +289,96 @@ class AIChatManager {
    * Set the current hack to edit
    * @param {Hack} hack - The hack to edit
    */
-  setCurrentHack(hack) {
+  async setCurrentHack(hack) {
     this.currentHack = hack;
     // Mark that we are editing an existing stored hack
     this.isEditingExistingHack = true;
     if (this.agenticService) {
       this.agenticService.setCurrentHack(hack);
+      this.agenticService.clearConversationHistory();
+
+      if (this.chatMessages) {
+        this.chatMessages.innerHTML = ""; // Clear UI messages
+      }
 
       // Add a system message to indicate which hack is being edited
       this.addMessage(
         `🎯 Now editing "${hack.name}". I can read and modify your CSS/JavaScript code directly.`,
         "system"
       );
+
+      // Pre-load context
+      await this.preloadHackContext(hack);
     }
+  }
+
+  /**
+   * Pre-loads the conversation history with the current hack's content.
+   * This gives the AI initial context for editing.
+   * @param {Hack} hack - The hack to load context from.
+   */
+  async preloadHackContext(hack) {
+    if (!hack) return;
+
+    // We need to create a system prompt first, because `startAgenticLoop` will not do it if history is not empty.
+    const systemPrompt = this.agenticService.createSystemPrompt();
+    this.agenticService.addMessageToHistory({
+      role: "system",
+      content: systemPrompt,
+    });
+
+    const hasCss = hack.cssCode && hack.cssCode.trim() !== "";
+    const hasJs = hack.jsCode && hack.jsCode.trim() !== "";
+
+    if (!hasCss && !hasJs) {
+      this.addMessage(
+        "This vibe is empty. Tell me what you'd like to create!",
+        "system"
+      );
+      return;
+    }
+
+    this.addMessage("Loading existing code into context...", "system");
+
+    let toolResultMessages = [];
+
+    // add the existing code to the context
+    if (hasCss) {
+      const cssResult = {
+        success: true,
+        content: hack.cssCode,
+      };
+      toolResultMessages.push(
+        `Tool Result (read_css): ${JSON.stringify(cssResult, null, 2)}`
+      );
+    }
+    if (hasJs) {
+      const jsResult = {
+        success: true,
+        content: hack.jsCode,
+      };
+      toolResultMessages.push(
+        `Tool Result (read_js): ${JSON.stringify(jsResult, null, 2)}`
+      );
+    }
+
+    const toolResultsContent = toolResultMessages.join("\n\n");
+    this.agenticService.addMessageToHistory({
+      role: "tool", // Tool results are fed back as a 'user' message
+      content: toolResultsContent,
+    });
+
+    // Add a summary to the UI
+    let summary = `I have loaded the existing code for this vibe.`;
+    if (hasCss && hasJs) {
+      summary += ` Both CSS and JavaScript are available.`;
+    } else if (hasCss) {
+      summary += ` CSS is available.`;
+    } else if (hasJs) {
+      summary += ` JavaScript is available.`;
+    }
+    summary += ` What would you like to change?`;
+    this.addMessage(summary, "system");
   }
 
   /**

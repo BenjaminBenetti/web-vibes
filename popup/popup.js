@@ -92,7 +92,9 @@ class PopupUI {
       const save = async () => {
         const newName = input.value.trim();
         if (newName && newName !== hack.name) {
-          await this.hackService.updateHack(this.currentHostname, hack.id, { name: newName });
+          await this.hackService.updateHack(this.currentHostname, hack.id, {
+            name: newName,
+          });
         }
         // Re-render the list
         const { hacks } = await this.hackService.getHacksForCurrentSite();
@@ -146,7 +148,9 @@ class PopupUI {
     actions.className = "hack-actions";
     actions.innerHTML = `
       <label class="toggle-switch">
-        <input type="checkbox" ${hack.enabled ? "checked" : ""} data-action="toggle">
+        <input type="checkbox" ${
+          hack.enabled ? "checked" : ""
+        } data-action="toggle">
         <span class="toggle-slider"></span>
       </label>
       <button class="btn btn-small btn-secondary" data-action="edit" title="Edit in Chat">
@@ -164,12 +168,12 @@ class PopupUI {
     // Disable only edit and settings buttons if hack is disabled
     if (!hack.enabled) {
       // Disable only edit and settings buttons
-      ['edit', 'settings'].forEach(action => {
+      ["edit", "settings"].forEach((action) => {
         const btn = actions.querySelector(`[data-action="${action}"]`);
         if (btn) {
           btn.disabled = true;
           btn.tabIndex = -1;
-          btn.addEventListener('click', e => {
+          btn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
             return false;
@@ -179,16 +183,20 @@ class PopupUI {
       // Do NOT disable the toggle switch or delete button!
     } else {
       // Add event listener for edit button
-      actions.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.handleEditHack(hack);
-      });
+      actions
+        .querySelector('[data-action="edit"]')
+        .addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.handleEditHack(hack);
+        });
 
       // Add event listener for settings button
-      actions.querySelector('[data-action="settings"]').addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.handleVibeSettings(hack);
-      });
+      actions
+        .querySelector('[data-action="settings"]')
+        .addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.handleVibeSettings(hack);
+        });
     }
 
     return hackItem;
@@ -217,7 +225,10 @@ class PopupUI {
     );
     this.renderHacksList(hacks);
     // Reload the current website
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
     if (tab && tab.id) {
       chrome.tabs.reload(tab.id);
     }
@@ -248,11 +259,18 @@ class PopupUI {
       hack,
       this.currentHostname,
       async (hackId, updateData) => {
-        await this.hackService.updateHack(this.currentHostname, hackId, updateData);
+        await this.hackService.updateHack(
+          this.currentHostname,
+          hackId,
+          updateData
+        );
         const { hacks } = await this.hackService.getHacksForCurrentSite();
         this.renderHacksList(hacks);
         // Reload the current website to apply changes
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
         if (tab && tab.id) {
           chrome.tabs.reload(tab.id);
         }
@@ -266,7 +284,9 @@ class PopupUI {
    */
   handleEditHack(hack) {
     // Navigate to chat page with hackId query parameter
-    window.location.href = `chat/chat.html?hackId=${encodeURIComponent(hack.id)}`;
+    window.location.href = `chat/chat.html?hackId=${encodeURIComponent(
+      hack.id
+    )}`;
   }
 
   async openExportModal() {
@@ -281,12 +301,18 @@ class PopupUI {
         <h3>Export Vibes</h3>
         <form id="exportVibesForm">
           <div class="export-vibes-list">
-            ${hacks.map(hack => `
+            ${hacks
+              .map(
+                (hack) => `
               <label class="export-vibe-item">
-                <input type="checkbox" name="vibe" value="${hack.id}" ${hack.enabled ? 'checked' : ''}>
+                <input type="checkbox" name="vibe" value="${hack.id}" ${
+                  hack.enabled ? "checked" : ""
+                }>
                 <span>${this.escapeHtml(hack.name)}</span>
               </label>
-            `).join("")}
+            `
+              )
+              .join("")}
           </div>
           <div class="export-modal-actions">
             <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
@@ -302,8 +328,10 @@ class PopupUI {
     // Form submit
     modal.querySelector("#exportVibesForm").onsubmit = async (e) => {
       e.preventDefault();
-      const checked = Array.from(modal.querySelectorAll('input[name="vibe"]:checked')).map(cb => cb.value);
-      const selected = hacks.filter(h => checked.includes(h.id));
+      const checked = Array.from(
+        modal.querySelectorAll('input[name="vibe"]:checked')
+      ).map((cb) => cb.value);
+      const selected = hacks.filter((h) => checked.includes(h.id));
       this.downloadVibes(selected);
       modal.remove();
     };
@@ -315,7 +343,11 @@ class PopupUI {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "web-vibes.groove";
+
+    // Use hostname as filename, sanitized for file system compatibility
+    const sanitizedHostname = this.sanitizeFilename(this.currentHostname);
+    a.download = `${sanitizedHostname}.groove`;
+
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
@@ -324,14 +356,35 @@ class PopupUI {
     }, 100);
   }
 
+  /**
+   * Sanitize hostname for use as filename
+   * @param {string} hostname - The hostname to sanitize
+   * @returns {string} Sanitized filename
+   */
+  sanitizeFilename(hostname) {
+    if (!hostname || hostname === "unknown") {
+      return "web-vibes";
+    }
+
+    // Replace invalid filename characters with underscores
+    // Invalid characters: \ / : * ? " < > |
+    return hostname
+      .replace(/[\\/:*?"<>|]/g, "_")
+      .replace(/^\.+/, "") // Remove leading dots
+      .replace(/\.+$/, "") // Remove trailing dots
+      .replace(/\s+/g, "_") // Replace spaces with underscores
+      .substring(0, 100); // Limit length to 100 characters
+  }
+
   async openImportModal() {
     // Open import page in a new Chrome extension tab instead of modal
     // This prevents the popup from closing when file picker is used
     // Pass the current hostname as a URL parameter
-    const importUrl = chrome.runtime.getURL('popup/import/import.html') +
+    const importUrl =
+      chrome.runtime.getURL("popup/import/import.html") +
       `?hostname=${encodeURIComponent(this.currentHostname)}`;
     chrome.tabs.create({
-      url: importUrl
+      url: importUrl,
     });
   }
 

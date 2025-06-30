@@ -35,6 +35,9 @@
 
         <div class="chat-input-container">
           <div class="input-group">
+            <button class="header-btn crosshair-btn" id="crosshairBtn" title="Target element on page">
+              <span class="material-icons">gps_fixed</span>
+            </button>
             <div class="input-wrapper" style="position: relative; flex: 1;">
               <input type="text" id="chatInput" class="chat-input">
               <!-- Loading overlay for AI thinking state (now inside input-wrapper) -->
@@ -63,6 +66,8 @@
   </div>
 
   <!-- Load library files in dependency order -->
+  <!-- Constants and configuration -->
+  <script src="../../lib/constants/message-types.js"></script>
   <script src="../../lib/settings/model/settings.js"></script>
   <script src="../../lib/settings/repo/settings-repo.js"></script>
   <script src="../../lib/settings/service/settings-service.js"></script>
@@ -78,9 +83,6 @@
   <script src="../../lib/hack/model/hack.js"></script>
   <script src="../../lib/hack/repo/hack-repo.js"></script>
   <script src="../../lib/hack/service/hack-service.js"></script>
-
-  <!-- Constants and configuration -->
-  <script src="../../lib/constants/message-types.js"></script>
 
   <!-- Agentic module files -->
   <script src="../../lib/agentic/model/agentic-tool.js"></script>

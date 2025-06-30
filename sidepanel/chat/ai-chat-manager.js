@@ -24,6 +24,7 @@ class AIChatManager {
     this.sendButton = document.getElementById("sendButton");
     this.aiNotConfigured = document.getElementById("aiNotConfigured");
     this.goToSettingsBtn = document.getElementById("goToSettings");
+    this.crosshairBtn = document.getElementById("crosshairBtn");
   }
 
   setupEventListeners() {
@@ -67,6 +68,13 @@ class AIChatManager {
           this.closeModal();
         }
         window.location.href = "settings/settings.html";
+      });
+    }
+
+    // Crosshair button for element targeting
+    if (this.crosshairBtn) {
+      this.crosshairBtn.addEventListener("click", () => {
+        this.startElementTargeting();
       });
     }
   }
@@ -146,6 +154,8 @@ class AIChatManager {
     if (this.chatInput) {
       this.chatInput.value = "";
     }
+    // Stop targeting mode if active
+    this.stopElementTargeting();
   }
 
   async sendMessage() {
@@ -256,7 +266,7 @@ class AIChatManager {
       "Rendering UI... 🖌️",
       "Syncing state... 🔄",
       "Profiling performance... 📈",
-      "Reviewing logs... 📜"
+      "Reviewing logs... 📜",
     ];
     return agenticMessages[Math.floor(Math.random() * agenticMessages.length)];
   }
@@ -651,7 +661,8 @@ class AIChatManager {
       // NEW: Create refresh button
       const refreshButton = document.createElement("button");
       refreshButton.className = "btn btn-primary icon-only";
-      refreshButton.title = "reload page. Can help if the vibe is not applying properly."; // Tooltip text
+      refreshButton.title =
+        "reload page. Can help if the vibe is not applying properly."; // Tooltip text
       refreshButton.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
           <span class="material-icons">refresh</span>
@@ -673,7 +684,8 @@ class AIChatManager {
             if (updatedTabId === tabId && changeInfo.status === "complete") {
               chrome.tabs.onUpdated.removeListener(onUpdatedListener);
               // Re-apply current hack as a preview using the ApplyHack tool (if available)
-              const applyHackTool = this.agenticService?.tools?.get("apply_hack");
+              const applyHackTool =
+                this.agenticService?.tools?.get("apply_hack");
               if (applyHackTool && this.currentHack) {
                 if (typeof applyHackTool.setCurrentHack === "function") {
                   applyHackTool.setCurrentHack(this.currentHack);
@@ -688,23 +700,34 @@ class AIChatManager {
           await chrome.tabs.reload(tabId);
         } catch (error) {
           console.error("Error refreshing page and re-applying vibe:", error);
-          this.addMessage("❌ Failed to refresh the page and re-apply the vibe.", "system");
+          this.addMessage(
+            "❌ Failed to refresh the page and re-apply the vibe.",
+            "system"
+          );
         }
       });
 
-      // Add both buttons after the last system message
-      const messages = this.chatMessages?.querySelectorAll(".chat-message");
-      if (messages && messages.length > 0) {
-        const lastMessage = messages[messages.length - 1];
-        const messageContent = lastMessage.querySelector(".message-content");
-        if (messageContent) {
-          messageContent.appendChild(saveButton);
-          messageContent.appendChild(refreshButton);
-          // Scroll to bottom so the buttons are visible
-          if (this.chatMessages) {
-            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-          }
-        }
+      // Create a new message element specifically for the buttons
+      const buttonMessageDiv = document.createElement("div");
+      buttonMessageDiv.className = "chat-message system";
+      
+      const buttonContentDiv = document.createElement("div");
+      buttonContentDiv.className = "message-content";
+      buttonContentDiv.style.padding = "12px 16px";
+      buttonContentDiv.style.display = "flex";
+      buttonContentDiv.style.gap = "8px";
+      buttonContentDiv.style.justifyContent = "flex-start";
+      
+      buttonContentDiv.appendChild(saveButton);
+      buttonContentDiv.appendChild(refreshButton);
+      
+      buttonMessageDiv.appendChild(buttonContentDiv);
+      
+      // Add the button message to the chat
+      if (this.chatMessages) {
+        this.chatMessages.appendChild(buttonMessageDiv);
+        // Scroll to bottom so the buttons are visible
+        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
       }
     }, 500);
   }
@@ -721,12 +744,16 @@ class AIChatManager {
     try {
       if (this.isEditingExistingHack) {
         // Update existing hack
-        await this.hackService.updateHack(this.currentHostname, this.currentHack.id, {
-          name: this.currentHack.name,
-          description: this.currentHack.description,
-          cssCode: this.currentHack.cssCode,
-          jsCode: this.currentHack.jsCode,
-        });
+        await this.hackService.updateHack(
+          this.currentHostname,
+          this.currentHack.id,
+          {
+            name: this.currentHack.name,
+            description: this.currentHack.description,
+            cssCode: this.currentHack.cssCode,
+            jsCode: this.currentHack.jsCode,
+          }
+        );
       } else {
         // Create a new hack
         await this.hackService.createHack(this.currentHostname, {
@@ -738,7 +765,10 @@ class AIChatManager {
       }
 
       const actionMsg = this.isEditingExistingHack ? "updated" : "saved";
-      this.addMessage(`✅ ${this.currentHack.name} ${actionMsg} successfully!`, "system");
+      this.addMessage(
+        `✅ ${this.currentHack.name} ${actionMsg} successfully!`,
+        "system"
+      );
 
       // Close modal if it exists and refresh popup
       if (this.modal) {
@@ -752,6 +782,162 @@ class AIChatManager {
     } catch (error) {
       console.error("Error saving hack:", error);
       this.addMessage("❌ Error saving vibe. Please try again.", "system");
+    }
+  }
+
+  /**
+   * Start element targeting mode
+   */
+  async startElementTargeting() {
+    try {
+      // Add visual feedback to the crosshair button
+      if (this.crosshairBtn) {
+        this.crosshairBtn.classList.add("active");
+      }
+
+      // Get the current active tab
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      if (!tab || !tab.id) {
+        this.addMessage(
+          "❌ Cannot target elements: No active tab found.",
+          "system"
+        );
+        this.stopElementTargeting();
+        return;
+      }
+
+      // Send message to content script to start targeting mode
+      await chrome.tabs.sendMessage(tab.id, {
+        type: MESSAGE_TYPES.START_ELEMENT_TARGETING,
+        source: "sidepanel",
+      });
+
+      // Add UI feedback
+      this.addMessage(
+        "🎯 Click on any element on the webpage to add it to the chat context.",
+        "system"
+      );
+
+      // Listen for the response from content script
+      this.setupTargetingMessageListener();
+    } catch (error) {
+      console.error("Error starting element targeting:", error);
+      this.addMessage("❌ Error starting element targeting mode.", "system");
+      this.stopElementTargeting();
+    }
+  }
+
+  /**
+   * Setup message listener for targeting responses
+   */
+  setupTargetingMessageListener() {
+    // Remove any existing listener first
+    if (this.targetingMessageListener) {
+      chrome.runtime.onMessage.removeListener(this.targetingMessageListener);
+    }
+
+    this.targetingMessageListener = (message, sender, sendResponse) => {
+      if (
+        message.type === MESSAGE_TYPES.ELEMENT_TARGETED &&
+        message.source === "content"
+      ) {
+        this.handleElementTargeted(message.elementData);
+        sendResponse({ success: true });
+        return true;
+      } else if (
+        message.type === MESSAGE_TYPES.TARGETING_CANCELLED &&
+        message.source === "content"
+      ) {
+        this.stopElementTargeting();
+        sendResponse({ success: true });
+        return true;
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(this.targetingMessageListener);
+  }
+
+  /**
+   * Handle when an element is targeted
+   * @param {Object} elementData - Data about the targeted element
+   */
+  async handleElementTargeted(elementData) {
+    try {
+      // Stop targeting mode
+      this.stopElementTargeting();
+
+      // Add the element data to the conversation history
+      const elementHtml = elementData.outerHTML || elementData.innerHTML || "";
+      const elementSelector = elementData.selector || "unknown";
+      const elementText = elementData.textContent || "";
+
+      // Create a contextual message about the targeted element
+      const contextMessage = `User has targeted an element on the page:
+
+**Element Selector:** ${elementSelector}
+**Element Text:** ${elementText.slice(0, 200)}${
+        elementText.length > 200 ? "..." : ""
+      }
+
+**Full HTML:**
+\`\`\`html
+${elementHtml}
+\`\`\``;
+
+      // Add the element context to the AI conversation history
+      if (this.agenticService) {
+        this.agenticService.addMessageToHistory({
+          role: "user",
+          content: contextMessage,
+        });
+      }
+
+      // Show confirmation message in chat UI
+      this.addMessage(
+        `✅ Element targeted! I can now see the "${elementSelector}" element and its content. Ask me anything about it or how to modify it.`,
+        "system"
+      );
+    } catch (error) {
+      console.error("Error handling targeted element:", error);
+      this.addMessage("❌ Error processing targeted element.", "system");
+    }
+  }
+
+  /**
+   * Stop element targeting mode
+   */
+  async stopElementTargeting() {
+    try {
+      // Remove visual feedback from crosshair button
+      if (this.crosshairBtn) {
+        this.crosshairBtn.classList.remove("active");
+      }
+
+      // Get the current active tab
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      if (tab && tab.id) {
+        // Send message to content script to stop targeting mode
+        await chrome.tabs.sendMessage(tab.id, {
+          type: MESSAGE_TYPES.STOP_ELEMENT_TARGETING,
+          source: "sidepanel",
+        });
+      }
+
+      // Remove message listener
+      if (this.targetingMessageListener) {
+        chrome.runtime.onMessage.removeListener(this.targetingMessageListener);
+        this.targetingMessageListener = null;
+      }
+    } catch (error) {
+      console.error("Error stopping element targeting:", error);
     }
   }
 }

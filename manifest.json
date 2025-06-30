@@ -43,6 +43,7 @@
         "content/handlers/search-javascript-handler.js",
         "content/handlers/inspect-css-handler.js",
         "content/handlers/search-keyword-handler.js",
+        "content/handlers/element-targeting-handler.js",
         "content/handlers/message-router.js",
         "content/content.js"
       ],

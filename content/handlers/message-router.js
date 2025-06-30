@@ -40,6 +40,14 @@ function routeMessage(request, sender, sendResponse, appliedHacks) {
         handleSearchWebsiteJavaScript(request, sender, sendResponse);
         break;
 
+      case MESSAGE_TYPES.START_ELEMENT_TARGETING:
+        handleStartElementTargeting(request, sender, sendResponse);
+        break;
+
+      case MESSAGE_TYPES.STOP_ELEMENT_TARGETING:
+        handleStopElementTargeting(request, sender, sendResponse);
+        break;
+
       default:
         sendResponse({
           success: false,

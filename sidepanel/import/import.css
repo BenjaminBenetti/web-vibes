@@ -39,29 +39,7 @@ body {
   flex: 1;
 }
 
-.back-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
-}
-
-.back-btn .material-icons {
-  font-size: 18px;
-}
+/* Back button styles are now in main.css for consistency */
 
 .current-site {
   font-size: 12px;

@@ -203,4 +203,97 @@
   color: var(--text-color);
 }
 
+/* Header Layout and Button Styles */
+.header {
+  background: var(--theme-gradient);
+  padding: 20px;
+  color: white;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  flex: 1;
+}
+
+/* Main page header: title on left, settings button on right */
+.header-top.main-header {
+  justify-content: space-between;
+  gap: 0;
+}
+
+/* Sub-page header: back button on left, title centered */
+.header-top.sub-header {
+  justify-content: flex-start;
+}
+
+.header-top.sub-header h1 {
+  text-align: center;
+  margin-right: 32px; /* Offset for the back button width to center the title */
+}
+
+/* Generic header button styles for both back and settings buttons */
+.header-btn,
+.settings-btn,
+.back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.header-btn:hover,
+.settings-btn:hover,
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Back button should not rotate on hover */
+.back-btn:hover {
+  transform: none;
+}
+
+.header-btn .material-icons,
+.settings-btn .material-icons,
+.back-btn .material-icons {
+  font-size: 18px;
+}
+
+.sub-header {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
+.current-site {
+  font-size: 12px;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Side panel specific styles are in sidepanel.css */

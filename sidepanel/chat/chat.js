@@ -56,16 +56,29 @@ class ChatPage {
 
   setupEventListeners() {
     // Back button navigation
-    this.backBtn.addEventListener("click", () => {
-      this.handleBackNavigation();
+    this.backBtn.addEventListener("click", async () => {
+      await this.handleBackNavigation();
     });
 
     // Settings navigation
     if (this.goToSettingsBtn) {
-      this.goToSettingsBtn.addEventListener("click", () => {
-        this.handleSettingsNavigation();
+      this.goToSettingsBtn.addEventListener("click", async () => {
+        await this.handleSettingsNavigation();
       });
     }
+
+    // Handle page unload to re-enable hack if user closes extension or navigates away
+    window.addEventListener("beforeunload", async () => {
+      if (this.aiChatManager && this.aiChatManager.isEditingExistingHack) {
+        // Note: In beforeunload, async operations may not complete reliably
+        // But we'll attempt to re-enable the hack anyway
+        try {
+          await this.aiChatManager.clearCurrentHack();
+        } catch (error) {
+          console.error("Error re-enabling hack during page unload:", error);
+        }
+      }
+    });
   }
 
   async initialize() {
@@ -131,12 +144,20 @@ class ChatPage {
     }
   }
 
-  handleBackNavigation() {
+  async handleBackNavigation() {
+    // Clear current hack to re-enable it if needed before leaving
+    if (this.aiChatManager && this.aiChatManager.isEditingExistingHack) {
+      await this.aiChatManager.clearCurrentHack();
+    }
     // Navigate back to main sidepanel
     window.location.href = "../sidepanel.html";
   }
 
-  handleSettingsNavigation() {
+  async handleSettingsNavigation() {
+    // Clear current hack to re-enable it if needed before leaving
+    if (this.aiChatManager && this.aiChatManager.isEditingExistingHack) {
+      await this.aiChatManager.clearCurrentHack();
+    }
     // Navigate to settings page
     window.location.href = "../settings/settings.html";
   }
@@ -157,7 +178,7 @@ class ChatPage {
       }
 
       // Set current hack in chat manager
-      this.aiChatManager.setCurrentHack(hack);
+      await this.aiChatManager.setCurrentHack(hack);
       return true;
     } catch (error) {
       console.error("Error setting current hack:", error);
@@ -168,8 +189,8 @@ class ChatPage {
   /**
    * Clear the current hack
    */
-  clearCurrentHack() {
-    this.aiChatManager.clearCurrentHack();
+  async clearCurrentHack() {
+    await this.aiChatManager.clearCurrentHack();
   }
 
   /**

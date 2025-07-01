@@ -1079,14 +1079,19 @@ ${elementHtml}
           if (updateData.cssCode !== undefined) this.currentHack.cssCode = updateData.cssCode;
           if (updateData.jsCode !== undefined) this.currentHack.jsCode = updateData.jsCode;
           if (updateData.enabled !== undefined) this.currentHack.enabled = updateData.enabled;
-
-
-          console.log("updateData", updateData);
           if (updateData.applyDelay !== undefined) this.currentHack.applyDelay = updateData.applyDelay;
 
           // Update the agentic service's current hack
           if (this.agenticService) {
             this.agenticService.setCurrentHack(this.currentHack);
+          }
+
+          if (this.isEditingExistingHack) {
+            await this.hackService.updateHack(
+              this.currentHostname,
+              this.currentHack.id,
+              updateData
+            )
           }
 
           // Re-apply the hack to show changes immediately

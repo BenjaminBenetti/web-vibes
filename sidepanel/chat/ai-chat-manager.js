@@ -872,6 +872,9 @@ class AIChatManager {
         source: "sidepanel",
       });
 
+      // Focus the webpage to ensure keyboard events can be captured
+      await chrome.tabs.update(tab.id, { active: true });
+
       // Add UI feedback
       this.addMessage(
         "🎯 Click on any element on the webpage to add it to the chat context.",
@@ -880,6 +883,9 @@ class AIChatManager {
 
       // Listen for the response from content script
       this.setupTargetingMessageListener();
+
+      // Add ESC key listener to handle cancellation when focus is on side panel
+      this.setupTargetingKeyListener();
     } catch (error) {
       console.error("Error starting element targeting:", error);
       this.addMessage("❌ Error starting element targeting mode.", "system");
@@ -918,6 +924,28 @@ class AIChatManager {
   }
 
   /**
+   * Setup ESC key listener for element targeting cancellation
+   */
+  setupTargetingKeyListener() {
+    // Remove any existing listener first
+    if (this.targetingKeyListener) {
+      document.removeEventListener("keydown", this.targetingKeyListener);
+    }
+
+    this.targetingKeyListener = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        this.stopElementTargeting();
+        this.addMessage("❌ Element targeting cancelled.", "system");
+      }
+    };
+
+    // Add listener to document to catch ESC key in side panel
+    document.addEventListener("keydown", this.targetingKeyListener);
+  }
+
+  /**
    * Handle when an element is targeted
    * @param {Object} elementData - Data about the targeted element
    */
@@ -935,9 +963,8 @@ class AIChatManager {
       const contextMessage = `User has targeted an element on the page:
 
 **Element Selector:** ${elementSelector}
-**Element Text:** ${elementText.slice(0, 200)}${
-        elementText.length > 200 ? "..." : ""
-      }
+**Element Text:** ${elementText.slice(0, 200)}${elementText.length > 200 ? "..." : ""
+        }
 
 **Full HTML:**
 \`\`\`html
@@ -991,6 +1018,12 @@ ${elementHtml}
       if (this.targetingMessageListener) {
         chrome.runtime.onMessage.removeListener(this.targetingMessageListener);
         this.targetingMessageListener = null;
+      }
+
+      // Remove ESC key listener
+      if (this.targetingKeyListener) {
+        document.removeEventListener("keydown", this.targetingKeyListener);
+        this.targetingKeyListener = null;
       }
     } catch (error) {
       console.error("Error stopping element targeting:", error);

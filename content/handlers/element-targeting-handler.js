@@ -82,9 +82,6 @@ function startElementTargeting() {
   document.addEventListener("mouseover", handleMouseOver, true);
   document.addEventListener("mouseout", handleMouseOut, true);
   document.addEventListener("click", handleClick, true);
-  document.addEventListener("keydown", handleKeyDown, true);
-
-  console.log("Element targeting mode activated");
 }
 
 /**
@@ -99,14 +96,11 @@ function stopElementTargeting() {
   document.removeEventListener("mouseover", handleMouseOver, true);
   document.removeEventListener("mouseout", handleMouseOut, true);
   document.removeEventListener("click", handleClick, true);
-  document.removeEventListener("keydown", handleKeyDown, true);
 
   // Clean up overlay and styles
   removeTargetingOverlay();
   removeTargetingStyles();
   clearHighlight();
-
-  console.log("Element targeting mode deactivated");
 }
 
 /**
@@ -122,7 +116,6 @@ function createTargetingOverlay() {
     <div class="web-vibes-targeting-instructions">
       <span class="web-vibes-crosshair">🎯</span>
       <span class="web-vibes-text">Click on any element to target it</span>
-      <span class="web-vibes-escape">(Press ESC to cancel)</span>
     </div>
   `;
 
@@ -180,11 +173,6 @@ function addTargetingStyles() {
     
     .web-vibes-text {
       font-weight: 600;
-    }
-    
-    .web-vibes-escape {
-      font-size: 12px;
-      opacity: 0.8;
     }
     
     @keyframes web-vibes-fade-in {
@@ -300,28 +288,6 @@ function handleClick(event) {
 }
 
 /**
- * Handle key down events during targeting
- * @param {KeyboardEvent} event - Keyboard event
- */
-function handleKeyDown(event) {
-  if (!isTargetingActive) return;
-
-  if (event.key === "Escape") {
-    event.preventDefault();
-    event.stopPropagation();
-
-    // Stop targeting mode
-    stopElementTargeting();
-
-    // Send cancellation message
-    chrome.runtime.sendMessage({
-      type: MESSAGE_TYPES.TARGETING_CANCELLED,
-      source: "content",
-    });
-  }
-}
-
-/**
  * Highlight an element
  * @param {Element} element - Element to highlight
  */
@@ -358,18 +324,22 @@ function extractElementData(element) {
     // Generate a unique selector for the element
     const selector = generateSelector(element);
 
+    // Define reasonable limits for data extraction
+    const TEXT_LIMIT = 1000;  // Increased for better context
+    const HTML_LIMIT = 10000; // Increased for complex elements
+
     // Get text content (truncated if too long)
     const textContent = element.textContent || "";
     const truncatedText =
-      textContent.length > 500
-        ? textContent.substring(0, 500) + "..."
+      textContent.length > TEXT_LIMIT
+        ? textContent.substring(0, TEXT_LIMIT) + "..."
         : textContent;
 
     // Get outer HTML (truncated if too long)
     const outerHTML = element.outerHTML || "";
     const truncatedHTML =
-      outerHTML.length > 5000
-        ? outerHTML.substring(0, 5000) + "..."
+      outerHTML.length > HTML_LIMIT
+        ? outerHTML.substring(0, HTML_LIMIT) + "..."
         : outerHTML;
 
     return {
@@ -392,6 +362,9 @@ function extractElementData(element) {
       outerHTML: "",
       innerHTML: "",
       attributes: {},
+      boundingRect: {},
+      url: window.location.href,
+      timestamp: new Date().toISOString(),
       error: error.message,
     };
   }

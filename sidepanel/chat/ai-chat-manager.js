@@ -3,9 +3,10 @@
  * Handles the chat interface and AI interactions for creating and editing vibes using agentic service
  */
 class AIChatManager {
-  constructor(agenticService, hackService) {
+  constructor(agenticService, hackService, settingsService) {
     this.agenticService = agenticService;
     this.hackService = hackService;
+    this.settingsService = settingsService;
     this.currentHostname = "";
     this.currentHack = null; // Track current hack being edited
     this.isEditingExistingHack = false; // Flag to differentiate between new and existing hacks
@@ -845,12 +846,17 @@ class AIChatManager {
    * Start element targeting mode
    */
   async startElementTargeting() {
-    try {
-      // Add visual feedback to the crosshair button
-      if (this.crosshairBtn) {
-        this.crosshairBtn.classList.add("active");
-      }
+    this.addMessage(
+      "Click on any element on the webpage to add it to the chat context.",
+      "assistant",
+      ["web-vibes-targeting-prompt"]
+    );
 
+    // Disable send button while targeting
+    if (this.sendButton) this.sendButton.disabled = true;
+    if (this.chatInput) this.chatInput.disabled = true;
+
+    try {
       // Get the current active tab
       const [tab] = await chrome.tabs.query({
         active: true,
@@ -858,43 +864,42 @@ class AIChatManager {
       });
 
       if (!tab || !tab.id) {
-        this.addMessage(
-          "❌ Cannot target elements: No active tab found.",
-          "system"
-        );
-        this.stopElementTargeting();
-        return;
+        throw new Error("Could not get active tab.");
       }
 
-      // Send message to content script to start targeting mode
-      await chrome.tabs.sendMessage(tab.id, {
+      // Get current theme gradient
+      const theme = await this.settingsService.getCurrentTheme();
+      const themeGradient = theme ? theme.gradient : null;
+
+      // Send a message to the content script to start targeting
+      const response = await chrome.tabs.sendMessage(tab.id, {
         type: MESSAGE_TYPES.START_ELEMENT_TARGETING,
-        source: "sidepanel",
+        source: "sidepanel-chat",
+        themeGradient: themeGradient,
       });
 
-      // Focus the webpage to ensure keyboard events can be captured
-      await chrome.tabs.update(tab.id, { active: true });
+      if (!response || !response.success) {
+        throw new Error(response.error || "Failed to start targeting.");
+      }
 
-      // Add UI feedback
-      this.addMessage(
-        "🎯 Click on any element on the webpage to add it to the chat context.",
-        "system"
-      );
-
-      // Listen for the response from content script
+      // Listen for when an element is targeted
       this.setupTargetingMessageListener();
-
-      // Add ESC key listener to handle cancellation when focus is on side panel
       this.setupTargetingKeyListener();
     } catch (error) {
       console.error("Error starting element targeting:", error);
-      this.addMessage("❌ Error starting element targeting mode.", "system");
-      this.stopElementTargeting();
+      this.addMessage(
+        `Error starting targeting: ${error.message}`,
+        "assistant"
+      );
+
+      // Re-enable send button on error
+      if (this.sendButton) this.sendButton.disabled = false;
+      if (this.chatInput) this.chatInput.disabled = false;
     }
   }
 
   /**
-   * Setup message listener for targeting responses
+   * Sets up a listener for messages from the content script during targeting.
    */
   setupTargetingMessageListener() {
     // Remove any existing listener first

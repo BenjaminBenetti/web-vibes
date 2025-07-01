@@ -26,7 +26,7 @@ function handleStartElementTargeting(request, sender, sendResponse) {
       return;
     }
 
-    startElementTargeting();
+    startElementTargeting(request.themeGradient);
 
     sendResponse({
       success: true,
@@ -67,7 +67,7 @@ function handleStopElementTargeting(request, sender, sendResponse) {
 /**
  * Start element targeting mode
  */
-function startElementTargeting() {
+function startElementTargeting(themeGradient) {
   if (isTargetingActive) return;
 
   isTargetingActive = true;
@@ -76,7 +76,7 @@ function startElementTargeting() {
   createTargetingOverlay();
 
   // Add targeting styles
-  addTargetingStyles();
+  addTargetingStyles(themeGradient);
 
   // Add event listeners
   document.addEventListener("mouseover", handleMouseOver, true);
@@ -115,7 +115,7 @@ function createTargetingOverlay() {
   targetingOverlay.innerHTML = `
     <div class="web-vibes-targeting-instructions">
       <span class="web-vibes-crosshair">🎯</span>
-      <span class="web-vibes-text">Click on any element to target it</span>
+      <span class="web-vibes-text">Click on any element to target (Esc to cancel)</span>
     </div>
   `;
 
@@ -135,8 +135,11 @@ function removeTargetingOverlay() {
 /**
  * Add targeting styles to the page
  */
-function addTargetingStyles() {
+function addTargetingStyles(themeGradient) {
   if (targetingStyles) return;
+
+  const backgroundStyle =
+    themeGradient || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
 
   targetingStyles = document.createElement("style");
   targetingStyles.id = "web-vibes-targeting-styles";
@@ -147,7 +150,7 @@ function addTargetingStyles() {
       left: 50%;
       transform: translateX(-50%);
       z-index: 999999;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: ${backgroundStyle};
       color: white;
       padding: 12px 20px;
       border-radius: 25px;

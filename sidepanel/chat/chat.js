@@ -40,7 +40,8 @@ class ChatPage {
 
     this.aiChatManager = new AIChatManager(
       this.agenticService,
-      this.hackService
+      this.hackService,
+      this.settingsService
     );
     this.currentHostname = "";
 

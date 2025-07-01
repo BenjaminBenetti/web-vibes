@@ -63,6 +63,12 @@
     font-size: 22px;
 }
 
+.crosshair-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 /* Back button styles are now in main.css for consistency */
 
 .chat-content {
@@ -130,6 +136,7 @@
 
 .chat-message.user {
     justify-content: flex-end;
+    padding-right: 12px;
 }
 
 .chat-message.assistant {
@@ -246,6 +253,28 @@
 #sendButton:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+#sendButton.stop-button {
+    background: #ef4444;
+    border-color: #dc2626;
+}
+
+#sendButton.stop-button:hover {
+    background: #dc2626;
+    border-color: #b91c1c;
+}
+
+/* Input styling when in stop mode */
+.chat-input.stop-mode {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.chat-input.stop-mode::placeholder {
+    color: #ef4444;
+    opacity: 0.8;
 }
 
 .ai-not-configured {

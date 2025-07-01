@@ -12,6 +12,7 @@ class AIChatManager {
     this.isEditingExistingHack = false; // Flag to differentiate between new and existing hacks
     this.originalHackEnabledState = null; // Track original enabled state before editing
     this.vibeSettingsModal = new VibeSettingsModal(); // Modal for editing vibe settings
+    this.isAgenticLoopRunning = false; // Track if agentic loop is currently running
     this.initializeElements();
     this.setupEventListeners();
   }
@@ -59,7 +60,12 @@ class AIChatManager {
       this.chatInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
-          this.sendMessage();
+          // If agentic loop is running, Enter key should also stop it
+          if (this.isAgenticLoopRunning) {
+            this.stopAgenticLoop();
+          } else {
+            this.sendMessage();
+          }
         }
       });
     }
@@ -169,6 +175,12 @@ class AIChatManager {
   async sendMessage() {
     if (!this.chatInput) return;
 
+    // If agentic loop is running, this is a stop request
+    if (this.isAgenticLoopRunning) {
+      this.stopAgenticLoop();
+      return;
+    }
+
     const message = this.chatInput.value.trim();
     if (!message) return;
 
@@ -207,6 +219,10 @@ class AIChatManager {
     // Add user message to chat
     this.addMessage(message, "user");
 
+    // Set running state and change button to stop button
+    this.isAgenticLoopRunning = true;
+    this.updateSendButtonToStop();
+
     try {
       // Use agentic service for all AI interactions
       await this.handleAgenticMessage(message);
@@ -217,6 +233,10 @@ class AIChatManager {
         "assistant"
       );
     } finally {
+      // Reset running state and restore send button
+      this.isAgenticLoopRunning = false;
+      this.updateSendButtonToSend();
+
       // Remove loading state and re-enable send button
       if (inputWrapper && loadingOverlay) {
         inputWrapper.classList.remove("loading");
@@ -479,7 +499,12 @@ class AIChatManager {
    */
   async handleAgenticResult(result, originalMessage) {
     if (result.success) {
-      if (!result.completed) {
+      if (result.aborted) {
+        // Loop was aborted by user - offer to save if modified
+        if (this.currentHack && this.hasHackBeenModified()) {
+          this.offerToSaveHack();
+        }
+      } else if (!result.completed) {
         // Loop ended due to max iterations
         this.addMessage(
           "🔄 I've reached the maximum number of iterations. The task may not be fully complete. You can continue by sending another message.",
@@ -487,8 +512,8 @@ class AIChatManager {
         );
       }
 
-      // Offer to save the hack if it has been modified
-      if (this.currentHack && this.hasHackBeenModified()) {
+      // Offer to save the hack if it has been modified (for completed tasks)
+      if (!result.aborted && this.currentHack && this.hasHackBeenModified()) {
         this.offerToSaveHack();
       }
     } else {
@@ -545,6 +570,10 @@ class AIChatManager {
 
       case "completion":
         this.addMessage("✨ Task completed successfully!", "system");
+        break;
+
+      case "aborted":
+        // Don't add another message here since stopAgenticLoop already adds one
         break;
 
       default:
@@ -1112,5 +1141,59 @@ ${elementHtml}
         console.log("Vibe settings modal closed");
       }
     );
+  }
+
+  /**
+ * Update the send button to show as a stop button
+ */
+  updateSendButtonToStop() {
+    if (!this.sendButton) return;
+
+    this.sendButton.innerHTML = `<span class="material-icons">stop</span>`;
+    this.sendButton.title = "Stop";
+    this.sendButton.classList.add("stop-button");
+
+    // Update input placeholder to indicate stop functionality
+    if (this.chatInput) {
+      this.chatInput.placeholder = "Press Enter or click Stop to cancel...";
+      this.chatInput.classList.add("stop-mode");
+    }
+
+    // Disable crosshair button during agentic loop
+    if (this.crosshairBtn) {
+      this.crosshairBtn.disabled = true;
+    }
+  }
+
+  /**
+ * Update the send button back to send mode
+ */
+  updateSendButtonToSend() {
+    if (!this.sendButton) return;
+
+    this.sendButton.innerHTML = `<span class="material-icons">send</span>`;
+    this.sendButton.title = "Send";
+    this.sendButton.classList.remove("stop-button");
+
+    // Restore original input placeholder and remove stop mode
+    if (this.chatInput) {
+      this.chatInput.placeholder = "Type a message...";
+      this.chatInput.classList.remove("stop-mode");
+    }
+
+    // Re-enable crosshair button
+    if (this.crosshairBtn) {
+      this.crosshairBtn.disabled = false;
+    }
+  }
+
+  /**
+   * Stop the currently running agentic loop
+   */
+  stopAgenticLoop() {
+    if (this.agenticService && this.isAgenticLoopRunning) {
+      this.agenticService.abort();
+      this.addMessage("🛑 Task stopped by user", "system");
+    }
   }
 }

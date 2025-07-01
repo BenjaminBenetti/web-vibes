@@ -12,16 +12,17 @@
     left: 50%;
     transform: translateX(-50%);
     margin: 0;
-    pointer-events: none; /* Allow clicks to pass through to buttons behind */
+    pointer-events: none;
+    /* Allow clicks to pass through to buttons behind */
 }
 
 /* Crosshair button styles */
 .crosshair-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: white;
-    width: 32px;
-    height: 32px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -29,36 +30,37 @@
     justify-content: center;
     transition: all 0.2s ease;
     flex-shrink: 0;
-    margin-left: 4px;
-    margin-bottom: 4px;
 }
 
 .crosshair-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
+    background: var(--background-hover);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
 }
 
 .crosshair-btn.active {
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--background-hover);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
     animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
     }
 
     70% {
-        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
     }
 }
 
 .crosshair-btn .material-icons {
-    font-size: 18px;
+    font-size: 22px;
 }
 
 /* Back button styles are now in main.css for consistency */
@@ -180,6 +182,7 @@
 .input-group {
     display: flex;
     gap: 8px;
+    padding: 4px;
     align-items: flex-end;
     position: relative;
     overflow: hidden;

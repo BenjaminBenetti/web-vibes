@@ -128,6 +128,22 @@
   --border-color: #ffccff;
 }
 
+.theme-rainbow-prism {
+  --theme-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecb89 20%, #feca57 40%, #48dbfb 60%, #a29bfe 80%, #fd79a8 100%);
+  --background-main: #fff8fc;
+  --background-secondary: #ffffff;
+  --background-hover: #ffeef8;
+  --border-color: #ffddf0;
+}
+
+.theme-pastel-dream {
+  --theme-gradient: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 25%, #ff7675 45%, #a29bfe 65%, #74b9ff 85%, #81ecec 100%);
+  --background-main: #fff9f5;
+  --background-secondary: #ffffff;
+  --background-hover: #fff0e8;
+  --border-color: #ffe0d1;
+}
+
 /* Dark Theme Variants */
 .theme-dark-cosmic {
   --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -182,6 +198,42 @@
   --text-color: #e2e8f0;
   --text-secondary: #94a3b8;
   --text-muted: #94a3b8;
+}
+
+.theme-dark-neon-blue {
+  --theme-gradient: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  --background-main: #0a0a0a;
+  --background-secondary: #1a1a1a;
+  --background-hover: #2a2a2a;
+  --border-color: #3a3a3a;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #94a3b8;
+  --accent-color: #00d4ff;
+}
+
+.theme-dark-neon-pink {
+  --theme-gradient: linear-gradient(135deg, #ff0080 0%, #ff0066 100%);
+  --background-main: #0a0a0a;
+  --background-secondary: #1a1a1a;
+  --background-hover: #2a2a2a;
+  --border-color: #3a3a3a;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #94a3b8;
+  --accent-color: #ff0080;
+}
+
+.theme-dark-neon-orange {
+  --theme-gradient: linear-gradient(135deg, #ff6600 0%, #ff4500 100%);
+  --background-main: #0a0a0a;
+  --background-secondary: #1a1a1a;
+  --background-hover: #2a2a2a;
+  --border-color: #3a3a3a;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #94a3b8;
+  --accent-color: #ff6600;
 }
 
 /* Dark theme form element styling */

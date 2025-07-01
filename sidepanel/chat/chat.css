@@ -181,7 +181,7 @@
 
 .input-group {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     padding: 4px;
     align-items: flex-end;
     position: relative;
@@ -471,6 +471,8 @@
     color: var(--text-muted);
     font-style: italic;
     transition: opacity 0.3s ease;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .typing-dots {

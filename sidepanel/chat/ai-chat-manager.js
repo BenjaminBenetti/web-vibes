@@ -11,6 +11,7 @@ class AIChatManager {
     this.currentHack = null; // Track current hack being edited
     this.isEditingExistingHack = false; // Flag to differentiate between new and existing hacks
     this.originalHackEnabledState = null; // Track original enabled state before editing
+    this.vibeSettingsModal = new VibeSettingsModal(); // Modal for editing vibe settings
     this.initializeElements();
     this.setupEventListeners();
   }
@@ -334,7 +335,7 @@ class AIChatManager {
 
       // Add a system message to indicate which hack is being edited
       this.addMessage(
-        `🎯 Now editing "${hack.name}". The original vibe has been temporarily disabled to prevent conflicts. I can read and modify your CSS/JavaScript code directly.`,
+        `🎯 Now editing "${hack.name}". I can read and modify your CSS/JavaScript code directly.`,
         "system"
       );
 
@@ -644,7 +645,8 @@ class AIChatManager {
         "", // Empty CSS to start
         "", // Empty JS to start
         true, // Enabled by default
-        new Date()
+        0, // applyDelay in milliseconds
+        new Date() // createdAt timestamp
       );
 
       // Set this as the current hack for the agentic service
@@ -700,6 +702,19 @@ class AIChatManager {
 
       saveButton.addEventListener("click", () => {
         this.saveCurrentHack();
+      });
+
+      // Create edit button
+      const editButton = document.createElement("button");
+      editButton.className = "btn btn-primary icon-only";
+      editButton.title = "Edit vibe settings";
+      editButton.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+          <span class="material-icons">edit</span>
+        </div>
+      `;
+      editButton.addEventListener("click", () => {
+        this.openVibeSettingsModal();
       });
 
       // NEW: Create refresh button
@@ -759,10 +774,11 @@ class AIChatManager {
       buttonContentDiv.className = "message-content";
       buttonContentDiv.style.padding = "12px 16px";
       buttonContentDiv.style.display = "flex";
-      buttonContentDiv.style.gap = "8px";
+      buttonContentDiv.style.gap = "4px";
       buttonContentDiv.style.justifyContent = "flex-start";
 
       buttonContentDiv.appendChild(saveButton);
+      buttonContentDiv.appendChild(editButton);
       buttonContentDiv.appendChild(refreshButton);
 
       buttonMessageDiv.appendChild(buttonContentDiv);
@@ -793,6 +809,7 @@ class AIChatManager {
           description: this.currentHack.description,
           cssCode: this.currentHack.cssCode,
           jsCode: this.currentHack.jsCode,
+          applyDelay: this.currentHack.applyDelay,
         };
 
         // Restore original enabled state when saving
@@ -812,6 +829,7 @@ class AIChatManager {
           description: this.currentHack.description,
           cssCode: this.currentHack.cssCode,
           jsCode: this.currentHack.jsCode,
+          applyDelay: this.currentHack.applyDelay,
         });
       }
 
@@ -891,8 +909,8 @@ class AIChatManager {
         `Error starting targeting: ${error.message}`,
         "assistant"
       );
-
-      // Re-enable send button on error
+    } finally {
+      // Re-enable send buttons
       if (this.sendButton) this.sendButton.disabled = false;
       if (this.chatInput) this.chatInput.disabled = false;
     }
@@ -1033,5 +1051,61 @@ ${elementHtml}
     } catch (error) {
       console.error("Error stopping element targeting:", error);
     }
+  }
+
+  /**
+   * Open the vibe settings modal to edit the current hack
+   */
+  openVibeSettingsModal() {
+    if (!this.currentHack) {
+      this.addMessage("❌ No vibe to edit.", "system");
+      return;
+    }
+
+    // Initialize the modal if needed
+    if (!this.vibeSettingsModal) {
+      this.vibeSettingsModal = new VibeSettingsModal();
+    }
+
+    // Open the modal with the current hack
+    this.vibeSettingsModal.openModal(
+      this.currentHack,
+      this.currentHostname,
+      async (hackId, updateData) => {
+        // On save callback - update the hack in memory and storage
+        try {
+          // Update the current hack object
+          if (updateData.name !== undefined) this.currentHack.name = updateData.name;
+          if (updateData.cssCode !== undefined) this.currentHack.cssCode = updateData.cssCode;
+          if (updateData.jsCode !== undefined) this.currentHack.jsCode = updateData.jsCode;
+          if (updateData.enabled !== undefined) this.currentHack.enabled = updateData.enabled;
+
+
+          console.log("updateData", updateData);
+          if (updateData.applyDelay !== undefined) this.currentHack.applyDelay = updateData.applyDelay;
+
+          // Update the agentic service's current hack
+          if (this.agenticService) {
+            this.agenticService.setCurrentHack(this.currentHack);
+          }
+
+          // Re-apply the hack to show changes immediately
+          const applyHackTool = this.agenticService?.tools?.get("apply_hack");
+          if (applyHackTool && this.currentHack) {
+            if (typeof applyHackTool.setCurrentHack === "function") {
+              applyHackTool.setCurrentHack(this.currentHack);
+            }
+            await applyHackTool.run({ preview: true });
+          }
+        } catch (error) {
+          console.error("Error updating hack from modal:", error);
+          this.addMessage("❌ Failed to update vibe settings.", "system");
+        }
+      },
+      () => {
+        // On close callback
+        console.log("Vibe settings modal closed");
+      }
+    );
   }
 }

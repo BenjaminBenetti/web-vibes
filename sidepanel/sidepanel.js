@@ -10,6 +10,7 @@ class SidePanelUI {
     this.hackService = hackService;
     this.currentHostname = "";
     this.vibeSettingsModal = new window.VibeSettingsModal();
+    this.dragAndDropInitialized = false;
     this.initializeElements();
   }
 
@@ -36,6 +37,117 @@ class SidePanelUI {
 
     this.updateCurrentSite(hostname);
     this.renderHacksList(hacks);
+    this.setupDragAndDrop(); // Set up drag and drop after rendering
+  }
+
+  setupDragAndDrop() {
+    // Only set up event listeners once
+    if (this.dragAndDropInitialized) return;
+    this.dragAndDropInitialized = true;
+
+    let draggedElement = null;
+    let draggedOverElement = null;
+    let orderSaved = false; // track if we already persisted the new order
+
+    this.hacksListEl.addEventListener("dragstart", (e) => {
+      const hackItem = e.target.closest(".hack-item");
+      if (!hackItem) return;
+
+      draggedElement = hackItem;
+      hackItem.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/html", hackItem.innerHTML);
+
+      orderSaved = false; // reset flag on new drag
+    });
+
+    this.hacksListEl.addEventListener("dragend", async (e) => {
+      const hackItem = e.target.closest(".hack-item");
+      if (hackItem) {
+        hackItem.classList.remove("dragging");
+      }
+
+      // If drop handler didn't save, persist order here
+      if (!orderSaved) {
+        const newOrder = Array.from(this.hacksListEl.querySelectorAll(".hack-item"))
+          .map(item => item.dataset.hackId);
+
+        try {
+          const updatedHacks = await this.hackService.updateHackRanksForCurrentSite(newOrder);
+          // Re-render with updated order to ensure consistency
+          this.renderHacksList(updatedHacks);
+        } catch (error) {
+          console.error("Error updating hack order on dragend:", error);
+        }
+      }
+    });
+
+    this.hacksListEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      const afterElement = this.getDragAfterElement(this.hacksListEl, e.clientY);
+
+      if (afterElement == null) {
+        this.hacksListEl.appendChild(draggedElement);
+      } else {
+        this.hacksListEl.insertBefore(draggedElement, afterElement);
+      }
+    });
+
+    this.hacksListEl.addEventListener("dragenter", (e) => {
+      const hackItem = e.target.closest(".hack-item");
+      if (hackItem && hackItem !== draggedElement) {
+        hackItem.classList.add("drag-over");
+        draggedOverElement = hackItem;
+      }
+    });
+
+    this.hacksListEl.addEventListener("dragleave", (e) => {
+      const hackItem = e.target.closest(".hack-item");
+      if (hackItem) {
+        hackItem.classList.remove("drag-over");
+      }
+    });
+
+    this.hacksListEl.addEventListener("drop", async (e) => {
+      e.preventDefault();
+
+      // Remove all drag-over classes
+      this.hacksListEl.querySelectorAll(".hack-item").forEach(item => {
+        item.classList.remove("drag-over");
+      });
+
+      // Get the new order of hack IDs
+      const newOrder = Array.from(this.hacksListEl.querySelectorAll(".hack-item"))
+        .map(item => item.dataset.hackId);
+
+      // Update the ranks in the backend
+      try {
+        const updatedHacks = await this.hackService.updateHackRanksForCurrentSite(newOrder);
+        orderSaved = true;
+        // Re-render with the updated hacks
+        this.renderHacksList(updatedHacks);
+      } catch (error) {
+        console.error("Error updating hack order:", error);
+        // Re-render to restore original order on error
+        const { hacks } = await this.hackService.getHacksForCurrentSite();
+        this.renderHacksList(hacks);
+      }
+    });
+  }
+
+  getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll(".hack-item:not(.dragging)")];
+
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
   updateCurrentSite(hostname) {
@@ -55,12 +167,23 @@ class SidePanelUI {
       const hackElement = this.createHackElement(hack);
       this.hacksListEl.appendChild(hackElement);
     });
+
+    // Set up drag and drop after rendering the list
+    this.setupDragAndDrop();
   }
 
   createHackElement(hack) {
     const hackItem = document.createElement("div");
     hackItem.className = `hack-item ${hack.enabled ? "" : "disabled"}`;
     hackItem.dataset.hackId = hack.id;
+    hackItem.draggable = true; // Make the item draggable
+
+    // Add drag handle
+    const dragHandle = document.createElement("div");
+    dragHandle.className = "drag-handle";
+    dragHandle.innerHTML = '<span class="material-icons">drag_handle</span>';
+    dragHandle.title = "Drag to reorder";
+    hackItem.appendChild(dragHandle);
 
     // Create the hack header
     const hackHeader = document.createElement("div");
@@ -148,9 +271,8 @@ class SidePanelUI {
     actions.className = "hack-actions";
     actions.innerHTML = `
       <label class="toggle-switch">
-        <input type="checkbox" ${
-          hack.enabled ? "checked" : ""
-        } data-action="toggle">
+        <input type="checkbox" ${hack.enabled ? "checked" : ""
+      } data-action="toggle">
         <span class="toggle-slider"></span>
       </label>
       <button class="btn btn-small btn-secondary" data-action="edit" title="Edit in Chat">
@@ -302,17 +424,16 @@ class SidePanelUI {
         <form id="exportVibesForm">
           <div class="export-vibes-list">
             ${hacks
-              .map(
-                (hack) => `
+        .map(
+          (hack) => `
               <label class="export-vibe-item">
-                <input type="checkbox" name="vibe" value="${hack.id}" ${
-                  hack.enabled ? "checked" : ""
-                }>
+                <input type="checkbox" name="vibe" value="${hack.id}" ${hack.enabled ? "checked" : ""
+            }>
                 <span>${this.escapeHtml(hack.name)}</span>
               </label>
             `
-              )
-              .join("")}
+        )
+        .join("")}
           </div>
           <div class="export-modal-actions">
             <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>

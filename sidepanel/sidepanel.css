@@ -207,7 +207,47 @@ body {
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 12px;
-    transition: all 0.2s ease;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, all 0.2s ease;
+}
+
+.hack-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+    cursor: grabbing;
+}
+
+.hack-item.drag-over {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Drag handle */
+.drag-handle {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    cursor: grab;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+    user-select: none;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drag-handle:hover {
+    color: var(--text-secondary);
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+    color: var(--accent-color);
+}
+
+.drag-handle .material-icons {
+    font-size: 20px;
 }
 
 .hack-item:hover {

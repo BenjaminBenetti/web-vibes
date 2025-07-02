@@ -852,14 +852,30 @@ class AIChatManager {
           updateData
         );
       } else {
-        // Create a new hack
-        await this.hackService.createHack(this.currentHostname, {
-          name: this.currentHack.name,
-          description: this.currentHack.description,
-          cssCode: this.currentHack.cssCode,
-          jsCode: this.currentHack.jsCode,
-          applyDelay: this.currentHack.applyDelay,
-        });
+        // Create a new hack and switch to editing mode for subsequent saves
+        const updatedHacks = await this.hackService.createHack(
+          this.currentHostname,
+          {
+            name: this.currentHack.name,
+            description: this.currentHack.description,
+            cssCode: this.currentHack.cssCode,
+            jsCode: this.currentHack.jsCode,
+            applyDelay: this.currentHack.applyDelay,
+          }
+        );
+
+        // Attempt to locate the newly created hack to sync its generated ID
+        const savedHack = updatedHacks.find(
+          (h) =>
+            h.name === this.currentHack.name &&
+            h.description === this.currentHack.description
+        );
+        if (savedHack) {
+          this.currentHack.id = savedHack.id;
+        }
+
+        // Enter editing mode for subsequent saves to prevent duplicates
+        this.isEditingExistingHack = true;
       }
 
       const actionMsg = this.isEditingExistingHack ? "updated" : "saved";
@@ -868,9 +884,8 @@ class AIChatManager {
         "system"
       );
 
-      // Reset editing state after successful save to prevent double-enabling
+      // Clear the stored original enabled state after the first successful save
       if (this.isEditingExistingHack) {
-        this.isEditingExistingHack = false;
         this.originalHackEnabledState = null;
       }
 

@@ -349,7 +349,7 @@ body {
     display: inline-block;
     width: 44px;
     height: 24px;
-    margin-right: 8px;
+    margin: 0px 4px;
 }
 
 .toggle-switch input {
@@ -583,6 +583,10 @@ input:checked+.toggle-slider:before {
 .current-site {
     flex: 1;
     min-width: 0;
+    max-width: max-content;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .csp-toggle-container {
@@ -592,9 +596,9 @@ input:checked+.toggle-slider:before {
 .csp-toggle-label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     font-size: 12px;
-    color: var(--text-muted);
+    color: white;
     cursor: pointer;
     user-select: none;
 }
@@ -651,6 +655,3 @@ input:checked+.toggle-slider:before {
     box-shadow: 0 0 0 2px var(--accent-color-alpha);
 }
 
-.csp-toggle-label:hover .csp-toggle-text {
-    color: var(--text-color);
-}

@@ -357,3 +357,11 @@ const serviceWorker = new WebVibesServiceWorker();
 serviceWorker.init().catch((error) => {
   console.error("Failed to initialize Web Vibes service worker:", error);
 });
+
+chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (rule) => {
+  console.log("NetRuleMatched ", rule);
+  console.log(
+    "ActiveRules",
+    await chrome.declarativeNetRequest.getDynamicRules()
+  );
+});

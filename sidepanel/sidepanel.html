@@ -20,7 +20,18 @@
           <span class="material-icons">settings</span>
         </button>
       </div>
-      <div class="current-site" id="currentSite">Loading...</div>
+      <div class="site-info">
+        <div class="current-site" id="currentSite">Loading...</div>
+        <div class="csp-toggle-container">
+          <label class="csp-toggle-label">
+            <span class="csp-toggle-text">Bust CSP</span>
+            <div class="toggle-switch">
+              <input type="checkbox" id="cspToggle" class="toggle-input">
+              <span class="toggle-slider"></span>
+            </div>
+          </label>
+        </div>
+      </div>
     </header>
 
     <!-- Action Bar -->
@@ -56,6 +67,9 @@
   <script src="../lib/settings/model/settings.js"></script>
   <script src="../lib/settings/repo/settings-repo.js"></script>
   <script src="../lib/settings/service/settings-service.js"></script>
+  <script src="../lib/csp/model/csp-settings.js"></script>
+  <script src="../lib/csp/repo/csp-repository.js"></script>
+  <script src="../lib/csp/service/csp-service.js"></script>
   <script src="../lib/hack/model/hack.js"></script>
   <script src="../lib/hack/repo/hack-repo.js"></script>
   <script src="../lib/hack/service/hack-service.js"></script>

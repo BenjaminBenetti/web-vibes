@@ -9,7 +9,9 @@
     "scripting",
     "tabs",
     "webNavigation",
-    "sidePanel"
+    "sidePanel",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
   ],
   "host_permissions": [
     "<all_urls>"

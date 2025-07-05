@@ -6,8 +6,9 @@
  * UI Manager for rendering and updating the side panel interface
  */
 class SidePanelUI {
-  constructor(hackService) {
+  constructor(hackService, cspService) {
     this.hackService = hackService;
+    this.cspService = cspService;
     this.currentHostname = "";
     this.vibeSettingsModal = new window.VibeSettingsModal();
     this.dragAndDropInitialized = false;
@@ -21,6 +22,7 @@ class SidePanelUI {
     this.addHackBtn = document.getElementById("addHackBtn");
     this.exportBtn = document.getElementById("exportBtn");
     this.importBtn = document.getElementById("importBtn");
+    this.cspToggle = document.getElementById("cspToggle");
     this.exportModal = null;
 
     if (this.exportBtn) {
@@ -29,6 +31,9 @@ class SidePanelUI {
     if (this.importBtn) {
       this.importBtn.addEventListener("click", () => this.openImportModal());
     }
+    if (this.cspToggle) {
+      this.cspToggle.addEventListener("change", () => this.handleCSPToggle());
+    }
   }
 
   async render() {
@@ -36,6 +41,7 @@ class SidePanelUI {
     this.currentHostname = hostname;
 
     this.updateCurrentSite(hostname);
+    await this.updateCSPToggle(hostname);
     this.renderHacksList(hacks);
     this.setupDragAndDrop(); // Set up drag and drop after rendering
   }
@@ -69,11 +75,13 @@ class SidePanelUI {
 
       // If drop handler didn't save, persist order here
       if (!orderSaved) {
-        const newOrder = Array.from(this.hacksListEl.querySelectorAll(".hack-item"))
-          .map(item => item.dataset.hackId);
+        const newOrder = Array.from(
+          this.hacksListEl.querySelectorAll(".hack-item")
+        ).map((item) => item.dataset.hackId);
 
         try {
-          const updatedHacks = await this.hackService.updateHackRanksForCurrentSite(newOrder);
+          const updatedHacks =
+            await this.hackService.updateHackRanksForCurrentSite(newOrder);
           // Re-render with updated order to ensure consistency
           this.renderHacksList(updatedHacks);
         } catch (error) {
@@ -84,7 +92,10 @@ class SidePanelUI {
 
     this.hacksListEl.addEventListener("dragover", (e) => {
       e.preventDefault();
-      const afterElement = this.getDragAfterElement(this.hacksListEl, e.clientY);
+      const afterElement = this.getDragAfterElement(
+        this.hacksListEl,
+        e.clientY
+      );
 
       if (afterElement == null) {
         this.hacksListEl.appendChild(draggedElement);
@@ -112,17 +123,19 @@ class SidePanelUI {
       e.preventDefault();
 
       // Remove all drag-over classes
-      this.hacksListEl.querySelectorAll(".hack-item").forEach(item => {
+      this.hacksListEl.querySelectorAll(".hack-item").forEach((item) => {
         item.classList.remove("drag-over");
       });
 
       // Get the new order of hack IDs
-      const newOrder = Array.from(this.hacksListEl.querySelectorAll(".hack-item"))
-        .map(item => item.dataset.hackId);
+      const newOrder = Array.from(
+        this.hacksListEl.querySelectorAll(".hack-item")
+      ).map((item) => item.dataset.hackId);
 
       // Update the ranks in the backend
       try {
-        const updatedHacks = await this.hackService.updateHackRanksForCurrentSite(newOrder);
+        const updatedHacks =
+          await this.hackService.updateHackRanksForCurrentSite(newOrder);
         orderSaved = true;
         // Re-render with the updated hacks
         this.renderHacksList(updatedHacks);
@@ -136,22 +149,76 @@ class SidePanelUI {
   }
 
   getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll(".hack-item:not(.dragging)")];
+    const draggableElements = [
+      ...container.querySelectorAll(".hack-item:not(.dragging)"),
+    ];
 
-    return draggableElements.reduce((closest, child) => {
-      const box = child.getBoundingClientRect();
-      const offset = y - box.top - box.height / 2;
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
 
-      if (offset < 0 && offset > closest.offset) {
-        return { offset: offset, element: child };
-      } else {
-        return closest;
-      }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY }
+    ).element;
   }
 
   updateCurrentSite(hostname) {
     this.currentSiteEl.textContent = hostname;
+  }
+
+  async updateCSPToggle(hostname) {
+    if (!this.cspToggle) return;
+
+    try {
+      const isEnabled = await this.cspService.isCSPBustingEnabled(hostname);
+      this.cspToggle.checked = isEnabled;
+    } catch (error) {
+      console.error("Error updating CSP toggle:", error);
+      this.cspToggle.checked = false;
+    }
+  }
+
+  async handleCSPToggle() {
+    if (!this.currentHostname) return;
+
+    try {
+      const isEnabled = this.cspToggle.checked;
+
+      if (isEnabled) {
+        await this.cspService.enableCSPBusting(this.currentHostname);
+        console.log(`CSP busting enabled for ${this.currentHostname}`);
+      } else {
+        await this.cspService.disableCSPBusting(this.currentHostname);
+        console.log(`CSP busting disabled for ${this.currentHostname}`);
+      }
+
+      // Reload the current tab to apply CSP changes
+      await this.reloadCurrentTab();
+    } catch (error) {
+      console.error("Error toggling CSP:", error);
+      // Revert toggle state on error
+      this.cspToggle.checked = !this.cspToggle.checked;
+    }
+  }
+
+  async reloadCurrentTab() {
+    try {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+      if (tab) {
+        await chrome.tabs.reload(tab.id);
+      }
+    } catch (error) {
+      console.error("Error reloading tab:", error);
+    }
   }
 
   renderHacksList(hacks) {
@@ -271,8 +338,9 @@ class SidePanelUI {
     actions.className = "hack-actions";
     actions.innerHTML = `
       <label class="toggle-switch">
-        <input type="checkbox" ${hack.enabled ? "checked" : ""
-      } data-action="toggle">
+        <input type="checkbox" ${
+          hack.enabled ? "checked" : ""
+        } data-action="toggle">
         <span class="toggle-slider"></span>
       </label>
       <button class="btn btn-small btn-secondary" data-action="edit" title="Edit in Chat">
@@ -424,16 +492,17 @@ class SidePanelUI {
         <form id="exportVibesForm">
           <div class="export-vibes-list">
             ${hacks
-        .map(
-          (hack) => `
+              .map(
+                (hack) => `
               <label class="export-vibe-item">
-                <input type="checkbox" name="vibe" value="${hack.id}" ${hack.enabled ? "checked" : ""
-            }>
+                <input type="checkbox" name="vibe" value="${hack.id}" ${
+                  hack.enabled ? "checked" : ""
+                }>
                 <span>${this.escapeHtml(hack.name)}</span>
               </label>
             `
-        )
-        .join("")}
+              )
+              .join("")}
           </div>
           <div class="export-modal-actions">
             <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
@@ -572,15 +641,26 @@ class SidePanelApp {
     this.hackService = new HackService(this.hackRepository);
     this.settingsRepository = new SettingsRepository();
     this.settingsService = new SettingsService(this.settingsRepository);
-    this.ui = new SidePanelUI(this.hackService);
+    this.cspRepository = new CSPRepository();
+    this.cspService = new CSPService(this.cspRepository);
+    this.ui = new SidePanelUI(this.hackService, this.cspService);
     this.eventHandler = new SidePanelEventHandler(this.ui);
   }
 
   async initialize() {
     await this.loadTheme();
+    await this.initializeCSPRules();
     await this.ui.render();
     // Set up tab change listener to update content when switching tabs
     this.setupTabChangeListener();
+  }
+
+  async initializeCSPRules() {
+    try {
+      await this.cspService.initializeCSPRules();
+    } catch (error) {
+      console.error("Error initializing CSP rules:", error);
+    }
   }
 
   async loadTheme() {

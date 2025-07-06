@@ -49,6 +49,11 @@ class VibeSettingsModal {
             </div>
 
             <div class="form-group">
+              <label for="vibeDescription">Description</label>
+              <textarea id="vibeDescription" class="form-textarea description-textarea" placeholder="Describe what this vibe does"></textarea>
+            </div>
+
+            <div class="form-group">
               <label for="cssCode">CSS Code</label>
               <textarea id="cssCode" class="form-textarea code-editor" placeholder="Enter CSS code here"></textarea>
             </div>
@@ -170,6 +175,7 @@ class VibeSettingsModal {
   populateForm(hack) {
     const title = this.modalElement.querySelector('#modalTitle');
     const nameInput = this.modalElement.querySelector('#vibeName');
+    const descriptionInput = this.modalElement.querySelector('#vibeDescription');
     const cssInput = this.modalElement.querySelector('#cssCode');
     const jsInput = this.modalElement.querySelector('#jsCode');
     const delaySlider = this.modalElement.querySelector('#applyDelay');
@@ -178,6 +184,7 @@ class VibeSettingsModal {
 
     title.textContent = `Edit: ${hack.name}`;
     nameInput.value = hack.name || '';
+    descriptionInput.value = hack.description || '';
     cssInput.value = hack.cssCode || '';
     jsInput.value = hack.jsCode || '';
 
@@ -199,6 +206,7 @@ class VibeSettingsModal {
 
       // Get form values
       const nameInput = this.modalElement.querySelector('#vibeName');
+      const descriptionInput = this.modalElement.querySelector('#vibeDescription');
       const cssInput = this.modalElement.querySelector('#cssCode');
       const jsInput = this.modalElement.querySelector('#jsCode');
       const delaySlider = this.modalElement.querySelector('#applyDelay');
@@ -226,6 +234,7 @@ class VibeSettingsModal {
       // Prepare update data
       const updateData = {
         name: name,
+        description: descriptionInput.value.trim(),
         cssCode: cssInput.value,
         jsCode: jsInput.value,
         enabled: enabledToggle.checked,

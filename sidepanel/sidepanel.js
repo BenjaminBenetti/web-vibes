@@ -425,11 +425,13 @@ class SidePanelUI {
 
     hackItem.appendChild(hackHeader);
 
-    // Description
-    const desc = document.createElement("p");
-    desc.className = "hack-description";
-    desc.textContent = hack.description;
-    hackItem.appendChild(desc);
+    // Description (only show if not empty)
+    if (hack.description && hack.description.trim()) {
+      const desc = document.createElement("p");
+      desc.className = "hack-description";
+      desc.textContent = hack.description.trim();
+      hackItem.appendChild(desc);
+    }
 
     // Actions
     const actions = document.createElement("div");

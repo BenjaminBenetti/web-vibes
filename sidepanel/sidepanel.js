@@ -198,12 +198,36 @@ class SidePanelUI {
         console.log(`CSP busting disabled for ${this.currentHostname}`);
       }
 
+      // Notify content scripts about the change
+      await this.notifyContentScriptsOfCSPChange(isEnabled);
+
       // Reload the current tab to apply CSP changes
       await this.reloadCurrentTab();
     } catch (error) {
       console.error("Error toggling CSP:", error);
       // Revert toggle state on error
       this.cspToggle.checked = !this.cspToggle.checked;
+    }
+  }
+
+  async notifyContentScriptsOfCSPChange(enabled) {
+    try {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+      if (tab) {
+        await chrome.tabs.sendMessage(tab.id, {
+          type: MESSAGE_TYPES.TOGGLE_SERVICE_WORKER_BLOCKING,
+          enabled: enabled,
+        });
+      }
+    } catch (error) {
+      // Content script might not be ready yet, which is fine
+      console.log(
+        "Content script not ready for CSP notification:",
+        error.message
+      );
     }
   }
 

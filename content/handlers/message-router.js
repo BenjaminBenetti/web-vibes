@@ -48,6 +48,10 @@ function routeMessage(request, sender, sendResponse, appliedHacks) {
         handleStopElementTargeting(request, sender, sendResponse);
         break;
 
+      case MESSAGE_TYPES.TOGGLE_SERVICE_WORKER_BLOCKING:
+        handleToggleServiceWorkerBlocking(request, sender, sendResponse);
+        break;
+
       default:
         sendResponse({
           success: false,

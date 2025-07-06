@@ -37,6 +37,15 @@
         "<all_urls>"
       ],
       "js": [
+        "content/handlers/service-worker-handler.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
         "lib/constants/message-types.js",
         "content/handlers/shared-utils.js",
         "content/handlers/apply-hack-handler.js",

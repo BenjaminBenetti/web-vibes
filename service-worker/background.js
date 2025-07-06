@@ -16,6 +16,7 @@
 class WebVibesServiceWorker {
   constructor() {
     this.storageKey = "webVibesHacks";
+    this.cspStorageKey = "csp_settings";
     this.initialized = false;
   }
 
@@ -55,7 +56,7 @@ class WebVibesServiceWorker {
   setupEventListeners() {
     // Listen for messages from content scripts or popup
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      this.handleMessage(request, sender, sendResponse);
+      return this.handleMessage(request, sender, sendResponse);
     });
 
     // Use webNavigation.onCompleted to apply hacks only on main frame navigations
@@ -84,31 +85,49 @@ class WebVibesServiceWorker {
    * @param {Object} sender - The message sender
    * @param {Function} sendResponse - Response callback
    */
-  async handleMessage(request, sender, sendResponse) {
+  handleMessage(request, sender, sendResponse) {
     try {
       switch (request.type) {
         case "GET_HACKS_FOR_SITE":
-          const hacks = await this.getHacksForSite(request.hostname);
-          sendResponse({ success: true, hacks });
-          break;
+          this.getHacksForSite(request.hostname)
+            .then((hacks) => {
+              sendResponse({ success: true, hacks });
+            })
+            .catch((error) => {
+              sendResponse({ success: false, error: error.message });
+            });
+          return true;
 
         case "APPLY_HACKS_FOR_SITE":
-          const result = await this.applyHacksForSite(
-            request.tabId,
-            request.hostname
-          );
-          sendResponse({ success: true, result });
-          break;
+          this.applyHacksForSite(request.tabId, request.hostname)
+            .then((result) => {
+              sendResponse({ success: true, result });
+            })
+            .catch((error) => {
+              sendResponse({ success: false, error: error.message });
+            });
+          return true;
+
+        case "CHECK_CSP_ENABLED":
+          this.isCSPBustingEnabled(request.hostname)
+            .then((isEnabled) => {
+              sendResponse({ enabled: isEnabled });
+            })
+            .catch((error) => {
+              console.error("Error checking CSP:", error);
+              sendResponse({ enabled: false, error: error.message });
+            });
+          return true;
 
         default:
           sendResponse({ success: false, error: "Unknown message type" });
+          return false;
       }
     } catch (error) {
       console.error("Error handling message:", error);
       sendResponse({ success: false, error: error.message });
+      return false;
     }
-
-    return true; // Keep the message channel open for async response
   }
 
   /**
@@ -348,6 +367,27 @@ class WebVibesServiceWorker {
         hackId: hack.id,
         error: error.message,
       };
+    }
+  }
+
+  /**
+   * Check if CSP busting is enabled for a hostname
+   * @param {string} hostname - The hostname to check
+   * @returns {Promise<boolean>} True if CSP busting is enabled
+   */
+  async isCSPBustingEnabled(hostname) {
+    try {
+      const result = await chrome.storage.local.get(this.cspStorageKey);
+      const allSettings = result[this.cspStorageKey] || {};
+
+      if (allSettings[hostname]) {
+        return allSettings[hostname].enabled || false;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error checking CSP settings:", error);
+      return false;
     }
   }
 }

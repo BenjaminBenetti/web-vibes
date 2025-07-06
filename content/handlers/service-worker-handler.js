@@ -162,7 +162,7 @@ class ServiceWorkerBlocker {
       clearInterval(this.cleanupInterval);
     }
 
-    // Check every 5 seconds for new service workers and unregister them
+    // Check every 1 seconds for new service workers and unregister them
     this.cleanupInterval = setInterval(async () => {
       try {
         if (!this.originalGetRegistrations) {
@@ -190,7 +190,7 @@ class ServiceWorkerBlocker {
       } catch (error) {
         // Silently ignore errors during periodic cleanup
       }
-    }, 5000);
+    }, 1000);
   }
 
   /**

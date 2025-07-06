@@ -119,6 +119,17 @@ class WebVibesServiceWorker {
             });
           return true;
 
+        case "CHECK_SERVICE_WORKER_BLOCKING_ENABLED":
+          this.isServiceWorkerBlockingEnabled(request.hostname)
+            .then((isEnabled) => {
+              sendResponse({ enabled: isEnabled });
+            })
+            .catch((error) => {
+              console.error("Error checking service worker blocking:", error);
+              sendResponse({ enabled: false, error: error.message });
+            });
+          return true;
+
         default:
           sendResponse({ success: false, error: "Unknown message type" });
           return false;
@@ -387,6 +398,27 @@ class WebVibesServiceWorker {
       return false;
     } catch (error) {
       console.error("Error checking CSP settings:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Check if service worker blocking is enabled for a hostname
+   * @param {string} hostname - The hostname to check
+   * @returns {Promise<boolean>} True if service worker blocking is enabled
+   */
+  async isServiceWorkerBlockingEnabled(hostname) {
+    try {
+      const result = await chrome.storage.local.get(this.cspStorageKey);
+      const allSettings = result[this.cspStorageKey] || {};
+
+      if (allSettings[hostname]) {
+        return allSettings[hostname].serviceWorkerBlockingEnabled || false;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error checking service worker blocking settings:", error);
       return false;
     }
   }

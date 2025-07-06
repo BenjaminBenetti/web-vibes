@@ -574,23 +574,28 @@ input:checked+.toggle-slider:before {
 /* CSP Toggle Styles */
 .site-info {
     display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.site-header {
+    display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    flex-wrap: wrap;
 }
 
 .current-site {
-    flex: 1;
-    min-width: 0;
-    max-width: max-content;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    flex: 1;
 }
 
 .csp-toggle-container {
     flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .csp-toggle-label {

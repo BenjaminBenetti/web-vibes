@@ -12,6 +12,13 @@
         "justjavac.vscode-deno-extensionpack"
       ]
     }
+  },
+  "mounts": [
+    "source=web-vibes-vscode-data,target=/home/node/.vscode-server/data/User/workspaceStorage,type=volume",
+    "source=${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind"
+  ],
+  "remoteEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude"
   }
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},

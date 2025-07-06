@@ -7,3 +7,9 @@ USER node
 RUN curl https://www.geldata.com/sh --proto "=https" -sSf1 >> /tmp/geldata-install.sh && \
   chmod 777 /tmp/geldata-install.sh && \
   /tmp/geldata-install.sh -y
+
+# == Make vscode user data folder ===
+RUN mkdir -p ~/.vscode-server/data/User
+
+# == Install claude code 
+RUN npm install -g @anthropic-ai/claude-code

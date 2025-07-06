@@ -23,10 +23,11 @@ class ServiceWorkerBlocker {
    */
   async init() {
     try {
-      // Check if CSP busting is enabled for this hostname
-      const isCSPEnabled = await this.isCSPBustingEnabled();
+      // Check if service worker blocking is enabled for this hostname
+      const isServiceWorkerBlockingEnabled =
+        await this.isServiceWorkerBlockingEnabled();
 
-      if (isCSPEnabled) {
+      if (isServiceWorkerBlockingEnabled) {
         await this.blockServiceWorkers();
         console.log(
           `[Web Vibes] Service worker blocking enabled for ${this.hostname}`
@@ -41,14 +42,14 @@ class ServiceWorkerBlocker {
   }
 
   /**
-   * Check if CSP busting is enabled for the current hostname
+   * Check if service worker blocking is enabled for the current hostname
    * @returns {Promise<boolean>}
    */
-  async isCSPBustingEnabled() {
+  async isServiceWorkerBlockingEnabled() {
     return new Promise((resolve) => {
       chrome.runtime.sendMessage(
         {
-          type: "CHECK_CSP_ENABLED",
+          type: "CHECK_SERVICE_WORKER_BLOCKING_ENABLED",
           hostname: this.hostname,
         },
         (response) => {

@@ -23,6 +23,7 @@ class SidePanelUI {
     this.exportBtn = document.getElementById("exportBtn");
     this.importBtn = document.getElementById("importBtn");
     this.cspToggle = document.getElementById("cspToggle");
+    this.serviceWorkerToggle = document.getElementById("serviceWorkerToggle");
     this.exportModal = null;
 
     if (this.exportBtn) {
@@ -34,6 +35,11 @@ class SidePanelUI {
     if (this.cspToggle) {
       this.cspToggle.addEventListener("change", () => this.handleCSPToggle());
     }
+    if (this.serviceWorkerToggle) {
+      this.serviceWorkerToggle.addEventListener("change", () =>
+        this.handleServiceWorkerToggle()
+      );
+    }
   }
 
   async render() {
@@ -42,6 +48,7 @@ class SidePanelUI {
 
     this.updateCurrentSite(hostname);
     await this.updateCSPToggle(hostname);
+    await this.updateServiceWorkerToggle(hostname);
     this.renderHacksList(hacks);
     this.setupDragAndDrop(); // Set up drag and drop after rendering
   }
@@ -184,6 +191,20 @@ class SidePanelUI {
     }
   }
 
+  async updateServiceWorkerToggle(hostname) {
+    if (!this.serviceWorkerToggle) return;
+
+    try {
+      const isEnabled = await this.cspService.isServiceWorkerBlockingEnabled(
+        hostname
+      );
+      this.serviceWorkerToggle.checked = isEnabled;
+    } catch (error) {
+      console.error("Error updating service worker toggle:", error);
+      this.serviceWorkerToggle.checked = false;
+    }
+  }
+
   async handleCSPToggle() {
     if (!this.currentHostname) return;
 
@@ -210,7 +231,60 @@ class SidePanelUI {
     }
   }
 
+  async handleServiceWorkerToggle() {
+    if (!this.currentHostname) return;
+
+    try {
+      const isEnabled = this.serviceWorkerToggle.checked;
+
+      if (isEnabled) {
+        await this.cspService.enableServiceWorkerBlocking(this.currentHostname);
+        console.log(
+          `Service worker blocking enabled for ${this.currentHostname}`
+        );
+      } else {
+        await this.cspService.disableServiceWorkerBlocking(
+          this.currentHostname
+        );
+        console.log(
+          `Service worker blocking disabled for ${this.currentHostname}`
+        );
+      }
+
+      // Notify content scripts about the change
+      await this.notifyContentScriptsOfServiceWorkerChange(isEnabled);
+
+      // Reload the current tab to apply service worker blocking changes
+      await this.reloadCurrentTab();
+    } catch (error) {
+      console.error("Error toggling service worker blocking:", error);
+      // Revert toggle state on error
+      this.serviceWorkerToggle.checked = !this.serviceWorkerToggle.checked;
+    }
+  }
+
   async notifyContentScriptsOfCSPChange(enabled) {
+    try {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+      if (tab) {
+        await chrome.tabs.sendMessage(tab.id, {
+          type: MESSAGE_TYPES.TOGGLE_CSP_BUSTING,
+          enabled: enabled,
+        });
+      }
+    } catch (error) {
+      // Content script might not be ready yet, which is fine
+      console.log(
+        "Content script not ready for CSP notification:",
+        error.message
+      );
+    }
+  }
+
+  async notifyContentScriptsOfServiceWorkerChange(enabled) {
     try {
       const [tab] = await chrome.tabs.query({
         active: true,
@@ -225,7 +299,7 @@ class SidePanelUI {
     } catch (error) {
       // Content script might not be ready yet, which is fine
       console.log(
-        "Content script not ready for CSP notification:",
+        "Content script not ready for service worker notification:",
         error.message
       );
     }

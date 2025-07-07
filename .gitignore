@@ -1,3 +1,6 @@
 game-plan.md
 bin/
 dist/
+keys/
+
+.claude/settings.local.json

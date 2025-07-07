@@ -9,11 +9,17 @@ Wild, and crazy, and fun!
 
 ## 📥 Installation (Quick Install)
 
-### Download & Install
+### Option 1: Direct Install (CRX) - Easiest! 🚀
 
-1. **Download**: Get the latest release from
-   [GitHub Releases](https://github.com/BenjaminBenetti/web-vibes/releases) -
-   download the `web-vibes-extension-v*.zip` file
+1. **Download**: Get the latest `web-vibes-extension-v*.crx` file from [GitHub Releases](https://github.com/BenjaminBenetti/web-vibes/releases)
+2. **Open Chrome**: Type `chrome://extensions/` in your address bar
+3. **Enable Developer Mode**: Toggle the switch in the top-right corner
+4. **Install**: Drag and drop the `.crx` file into the extensions page
+5. **Done!** Look for the Web Vibes icon in your toolbar
+
+### Option 2: Manual Install (ZIP)
+
+1. **Download**: Get the latest `web-vibes-extension-v*.zip` file from [GitHub Releases](https://github.com/BenjaminBenetti/web-vibes/releases)
 2. **Extract**: Right-click the ZIP file → "Extract All" → Choose a folder
 3. **Open Chrome**: Type `chrome://extensions/` in your address bar
 4. **Enable Developer Mode**: Toggle the switch in the top-right corner

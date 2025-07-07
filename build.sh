@@ -129,13 +129,88 @@ create_zip() {
     echo "$final_zip_path"
 }
 
+# Generate private key for CRX if it doesn't exist
+generate_key() {
+    local key_path="keys/extension.pem"
+    
+    if [ ! -f "$key_path" ]; then
+        log_info "Generating private key for CRX packaging..."
+        mkdir -p keys
+        
+        # Generate RSA private key
+        openssl genrsa -out "$key_path" 2048 2>/dev/null
+        
+        if [ $? -eq 0 ]; then
+            log_success "Generated private key at $key_path"
+        else
+            log_warning "OpenSSL not available, CRX packaging will be skipped"
+            return 1
+        fi
+    fi
+    
+    return 0
+}
+
+# Create CRX package using Chrome
+create_crx() {
+    local version=$(get_version)
+    local crx_name="${EXTENSION_NAME}-v${version}.crx"
+    local final_crx_path="bin/$crx_name"
+    local key_path="keys/extension.pem"
+    
+    # Generate key if needed
+    if ! generate_key; then
+        log_warning "Cannot generate private key, skipping CRX creation"
+        return 1
+    fi
+    
+    # Find Chrome executable
+    local chrome_exec=""
+    for cmd in google-chrome chrome chromium-browser chromium; do
+        if command -v "$cmd" &> /dev/null; then
+            chrome_exec="$cmd"
+            break
+        fi
+    done
+    
+    if [ -z "$chrome_exec" ]; then
+        log_warning "Chrome/Chromium not found, skipping CRX creation"
+        return 1
+    fi
+    
+    log_info "Creating CRX package using Chrome..."
+    
+    # Remove existing CRX if it exists
+    [ -f "$final_crx_path" ] && rm "$final_crx_path"
+    
+    # Create CRX using Chrome (with container-friendly flags)
+    "$chrome_exec" --pack-extension="$(pwd)/$BUILD_DIR" --pack-extension-key="$(pwd)/$key_path" --no-message-box --no-sandbox --headless --disable-dev-shm-usage --disable-gpu 2>/dev/null
+    
+    if [ -f "${BUILD_DIR}.crx" ]; then
+        mv "${BUILD_DIR}.crx" "$final_crx_path"
+        log_success "Created $final_crx_path"
+        echo "$final_crx_path"
+        return 0
+    else
+        log_warning "Failed to create CRX package"
+        return 1
+    fi
+}
+
 # Show completion message
 show_completion() {
     local zip_name="$1"
+    local crx_name="$2"
     
     echo
     log_info "📋 Installation instructions are now in README.md"
-    log_info "📦 Share $zip_name with users"
+    log_info "📦 Share $zip_name with users (for manual installation)"
+    
+    if [ -n "$crx_name" ]; then
+        log_info "📦 Share $crx_name with users (for direct installation)"
+        log_info "💡 CRX files can be drag-and-dropped into Chrome extensions page"
+    fi
+    
     log_info "🔗 Upload to GitHub Releases for easy distribution"
     echo
 }
@@ -161,12 +236,21 @@ main() {
     clean_build
     copy_files
     update_version
+    
+    # Create packages
     zip_name=$(create_zip)
-    show_completion "$zip_name"
+    crx_name=$(create_crx)
+    
+    show_completion "$zip_name" "$crx_name"
     
     echo
     log_success "✅ Build complete!"
-    log_info "📦 Package: $zip_name"
+    log_info "📦 ZIP Package: $zip_name"
+    
+    if [ -n "$crx_name" ]; then
+        log_info "📦 CRX Package: $crx_name"
+    fi
+    
     echo
     log_info "Ready for distribution! 🎉"
 }
